@@ -72,6 +72,70 @@ export function estTDEE(kg, cm, age, activity = 1.45) {
   return bmrMale(kg, cm, age) * activity;
 }
 
+/** Count of days that have any logged activity ("locked-in days"). */
+export function lockedInDays(dayLogs) {
+  if (!dayLogs) return 0;
+  return Object.values(dayLogs).filter((log) =>
+    log && (log.workoutDone || (log.water || 0) > 0 || (log.steps || 0) > 0 ||
+      (log.checks && Object.values(log.checks).some(Boolean)))
+  ).length;
+}
+
+/** Given the RANKS table and a day count, return current rank + next threshold. */
+export function rankFor(ranks, days) {
+  let current = ranks[0];
+  let next = null;
+  for (let i = 0; i < ranks.length; i++) {
+    if (days >= ranks[i].min) { current = ranks[i]; next = ranks[i + 1] || null; }
+    else break;
+  }
+  return { current, next, toNext: next ? next.min - days : 0 };
+}
+
+/** Minutes since midnight for "HH:MM". */
+function toMin(hhmm) { const [h, m] = hhmm.split(":").map(Number); return h * 60 + m; }
+
+/**
+ * 16:8 fasting status for `now`.
+ * @returns {{state:'fasting'|'eating', label:string, untilMs:number}}
+ *   untilMs = ms until the window flips (opens if fasting, closes if eating).
+ */
+export function fastingStatus(now, openStr, closeStr) {
+  const mins = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+  const open = toMin(openStr), close = toMin(closeStr);
+  const minToMs = (m) => Math.round(m * 60000);
+  if (mins < open) return { state: "fasting", label: "until eating window", untilMs: minToMs(open - mins) };
+  if (mins < close) return { state: "eating", label: "left in eating window", untilMs: minToMs(close - mins) };
+  return { state: "fasting", label: "until eating window", untilMs: minToMs(24 * 60 - mins + open) };
+}
+
+/** Format ms as "Hh Mm". */
+export function fmtCountdown(ms) {
+  const totalMin = Math.max(0, Math.round(ms / 60000));
+  const h = Math.floor(totalMin / 60), m = totalMin % 60;
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+/**
+ * Project when the goal is reached from the current weekly rate.
+ * @returns {{weeks:number, date:Date}|null} null if not losing weight.
+ */
+export function etaToGoal(currentKg, goalKg, ratePerWeek, now = new Date()) {
+  if (currentKg <= goalKg) return { weeks: 0, date: new Date(now) };
+  if (!ratePerWeek || ratePerWeek >= 0) return null; // not losing
+  const weeks = (currentKg - goalKg) / Math.abs(ratePerWeek);
+  const date = new Date(now.getTime() + weeks * 7 * 86400000);
+  return { weeks, date };
+}
+
+/** Whole days since the journey start date (local calendar days). */
+export function daysSince(startDate, now = new Date()) {
+  const [y, m, d] = String(startDate).split("-").map(Number);
+  const s = new Date(y, m - 1, d);
+  const n = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.max(0, Math.round((n - s) / 86400000));
+}
+
 export function ageFrom(dob, now = new Date()) {
   const b = new Date(dob);
   let a = now.getFullYear() - b.getFullYear();

@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
-import { bmi, bmiCategory, totalLost, progressPct, weeklyRate, currentStreak, ageFrom } from "../js/calc.js";
+import { bmi, bmiCategory, totalLost, progressPct, weeklyRate, currentStreak, ageFrom,
+  lockedInDays, rankFor, fastingStatus, fmtCountdown, etaToGoal, daysSince } from "../js/calc.js";
+import { RANKS } from "../js/data.js";
 
 let pass = 0;
 const t = (name, fn) => { fn(); pass++; console.log("  ok -", name); };
@@ -57,6 +59,38 @@ t("currentStreak 0 when today empty", () => {
 
 t("ageFrom DOB 2000-01-18 on 2026-05-26 = 26", () => {
   assert.equal(ageFrom("2000-01-18", new Date(2026, 4, 26)), 26);
+});
+
+t("lockedInDays counts active days only", () => {
+  const logs = { a: { checks: { x: true } }, b: { water: 1 }, c: { checks: {} }, d: {} };
+  assert.equal(lockedInDays(logs), 2);
+});
+
+t("rankFor returns current + next", () => {
+  let r = rankFor(RANKS, 0); assert.equal(r.current.title, "Rookie"); assert.equal(r.next.title, "Committed");
+  r = rankFor(RANKS, 14); assert.equal(r.current.title, "Locked In"); assert.equal(r.toNext, 30 - 14);
+  r = rankFor(RANKS, 500); assert.equal(r.current.title, "Unbreakable"); assert.equal(r.next, null);
+});
+
+t("fastingStatus: before window = fasting, inside = eating", () => {
+  const at = (h, m) => new Date(2026, 4, 26, h, m);
+  assert.equal(fastingStatus(at(9, 0), "12:30", "20:00").state, "fasting");
+  assert.equal(fastingStatus(at(14, 0), "12:30", "20:00").state, "eating");
+  assert.equal(fastingStatus(at(22, 0), "12:30", "20:00").state, "fasting");
+  // 9:00 -> 12:30 is 3h30m
+  assert.equal(fmtCountdown(fastingStatus(at(9, 0), "12:30", "20:00").untilMs), "3h 30m");
+});
+
+t("etaToGoal projects weeks when losing, null when not", () => {
+  const eta = etaToGoal(100, 80, -1); // 20kg at 1kg/wk = 20 weeks
+  assert.ok(Math.abs(eta.weeks - 20) < 1e-6);
+  assert.equal(etaToGoal(100, 80, 0), null);
+  assert.equal(etaToGoal(100, 80, 0.5), null); // gaining
+  assert.equal(etaToGoal(80, 80, -1).weeks, 0); // already there
+});
+
+t("daysSince", () => {
+  assert.equal(daysSince("2026-05-20", new Date(2026, 4, 26)), 6);
 });
 
 console.log(`PASSED ${pass} calc tests\n`);

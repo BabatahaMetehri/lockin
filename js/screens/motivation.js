@@ -1,16 +1,18 @@
 /* ============================================================
    motivation.js — streak, milestone badges, your "why", daily line.
    ============================================================ */
-import { el, card, pageHead } from "../ui.js";
+import { el, card, pageHead, statBox } from "../ui.js";
 import { getState, getSettings, setSettings, latestWeight } from "../store.js";
-import { currentStreak, totalLost } from "../calc.js";
-import { MILESTONES, DAILY_LINES } from "../data.js";
+import { currentStreak, totalLost, lockedInDays, rankFor, weeklyRate, etaToGoal } from "../calc.js";
+import { MILESTONES, DAILY_LINES, RANKS } from "../data.js";
 
 export function renderMotivation(root) {
   const s = getSettings();
   const state = getState();
   const streak = currentStreak(state.dayLogs, new Date());
   const lost = totalLost(s.startWeightKg, latestWeight());
+  const days = lockedInDays(state.dayLogs);
+  const rank = rankFor(RANKS, days);
 
   root.appendChild(pageHead("Drive", "Why you don't quit this time"));
 
@@ -22,6 +24,36 @@ export function renderMotivation(root) {
       el("p.muted", { text: streak > 0 ? "Don't break the chain." : "Do anything today to start the chain.", style: "margin:6px 0 0" }),
     ]),
   ]));
+
+  // rank
+  const rankCard = card('🎖️ <span class="tag">Your rank</span>', []);
+  rankCard.appendChild(el("div.row-between", {}, [
+    el("div", {}, [
+      el("div.streak-fire", { html: `${rank.current.icon} ${rank.current.title}`, style: "font-size:2.2rem;color:var(--lime)" }),
+      el("small.note", { text: `${days} locked-in day${days === 1 ? "" : "s"}` }),
+    ]),
+    rank.next ? el("span.pill mut", { text: `${rank.toNext} → ${rank.next.title}` }) : el("span.pill lime", { text: "MAX 🏆" }),
+  ]));
+  const ladder = el("div", { style: "display:flex;gap:6px;flex-wrap:wrap;margin-top:12px" });
+  RANKS.forEach((r) => ladder.appendChild(el("span.pill " + (days >= r.min ? "lime" : "mut"), { html: `${r.icon} ${r.title}`, style: "font-size:.62rem" })));
+  rankCard.appendChild(ladder);
+  root.appendChild(rankCard);
+
+  // goal ETA
+  const rate = weeklyRate(state.weights);
+  const eta = etaToGoal(latestWeight(), s.goalWeightKg, rate);
+  const etaCard = card('📅 <span class="tag">Projected finish</span>', []);
+  if (eta && eta.weeks > 0) {
+    const dateStr = eta.date.toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" });
+    etaCard.appendChild(el("div.stat-row", {}, [
+      statBox(Math.ceil(eta.weeks), "weeks to 80kg", "lime"),
+      statBox(Math.abs(rate).toFixed(2), "kg / week", "lime"),
+    ]));
+    etaCard.appendChild(el("p", { html: `At your current pace you hit <b>80 kg around ${dateStr}</b>. Keep stacking days.` , style: "margin-bottom:0" }));
+  } else {
+    etaCard.appendChild(el("p.muted", { text: "Log a couple of weigh-ins a week apart and I'll project your finish date here.", style: "margin:0" }));
+  }
+  root.appendChild(etaCard);
 
   // why
   const whyCard = card('🎯 <span class="tag">My why</span>', []);

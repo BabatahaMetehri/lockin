@@ -9,6 +9,7 @@ import { hashPin, verifyPin, deriveKey, encryptBytes, decryptBytes } from "../cr
 import { getAllMedia, putMedia } from "../db.js";
 import { WORKOUTS } from "../data.js";
 import { toast, go } from "../router.js";
+import { getReminders, setReminders, enableNotifications, permission, fireTest, scheduleAll, reminderInfo } from "../reminders.js";
 
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -47,6 +48,39 @@ export function renderSettings(root, { refresh }) {
   }
   schCard.appendChild(el("button.btn", { text: "Save schedule", onclick: () => { setSettings({ schedule: sched }); toast("Schedule saved"); refresh(); } }));
   root.appendChild(schCard);
+
+  // ---- reminders ----
+  const remCard = card('🔔 <span class="tag">Daily reminders</span>', []);
+  const perm = permission();
+  if (perm === "unsupported") {
+    remCard.appendChild(el("p.muted", { text: "This browser doesn't support notifications. Try installing the app to your home screen." }));
+  } else {
+    if (perm !== "granted") {
+      remCard.appendChild(el("button.btn", { text: "🔔 Turn on notifications", onclick: async () => {
+        const r = await enableNotifications();
+        toast(r === "granted" ? "Notifications on" : "Permission " + r);
+        if (r === "granted") refresh();
+      }}));
+    } else {
+      remCard.appendChild(el("p.pill lime", { text: "Notifications ON", style: "display:inline-block" }));
+    }
+    const list = getReminders().map((r) => ({ ...r }));
+    const rows = el("div", { style: "margin-top:12px" });
+    list.forEach((rem) => {
+      const time = el("input.input", { type: "time", value: rem.time, style: "width:120px" });
+      time.addEventListener("change", () => { rem.time = time.value; });
+      const toggle = el("button.btn " + (rem.on ? "sm" : "ghost sm"), { text: rem.on ? "ON" : "OFF" });
+      toggle.addEventListener("click", () => { rem.on = !rem.on; toggle.textContent = rem.on ? "ON" : "OFF"; toggle.className = "btn " + (rem.on ? "sm" : "ghost sm"); });
+      rows.appendChild(el("div.row-between", { style: "padding:8px 0;border-bottom:1px solid var(--line)" }, [
+        el("span", { text: rem.label, style: "flex:1" }), time, toggle,
+      ]));
+    });
+    remCard.appendChild(rows);
+    remCard.appendChild(el("button.btn", { text: "Save reminders", style: "margin-top:10px", onclick: async () => { setReminders(list); await scheduleAll(); toast("Reminders saved"); } }));
+    remCard.appendChild(el("button.btn ghost sm", { text: "Send test notification", style: "margin-top:8px", onclick: () => fireTest() }));
+    remCard.appendChild(el("p.note", { text: reminderInfo, style: "margin-top:10px" }));
+  }
+  root.appendChild(remCard);
 
   // ---- backup ----
   const backupCard = card('💾 <span class="tag">Backup & restore</span>', []);

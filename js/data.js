@@ -44,29 +44,31 @@ export const RECIPE_BASICS = [
   { name: "Sautéed/steamed veg", steps: "Chop veg, sauté in remaining oil 6–8 min (or steam 8 min). Salt + parsley." },
 ];
 
-/* Each option is interchangeable. Pick ONE lunch + ONE dinner per day. */
+/* Each option is interchangeable. Pick ONE lunch + ONE dinner per day.
+   Budget-first: eggs, potato, rice, pasta and canned fish are the cheap
+   backbone. Chicken is the priciest item — keep it to ~2 days/week. */
 export const LUNCHES = [
-  { id: "L1", name: "Chicken & rice", macros: "≈650 kcal · 64g P",
-    ingredients: ["220g raw chicken breast", "50g dry white rice", "200g veg (zucchini, carrot, green beans)", "10g olive oil", "lemon, cumin, parsley"],
-    steps: ["Start the rice (see basics).", "Season and pan-cook the chicken.", "Sauté the veg in the same pan.", "Plate rice + chicken + veg, squeeze lemon."] },
-  { id: "L2", name: "Tuna & potato bowl", macros: "≈620 kcal · 60g P",
-    ingredients: ["2 cans tuna in water (drained ~200g)", "300g raw potato", "10g olive oil", "lemon, parsley", "side salad"],
-    steps: ["Boil the potatoes.", "Drain tuna well.", "Combine potato + tuna, drizzle oil + lemon, salt, parsley.", "Add chopped lettuce/cucumber/tomato on the side."] },
-  { id: "L3", name: "Chicken & couscous", macros: "≈650 kcal · 63g P",
-    ingredients: ["220g raw chicken breast", "50g dry couscous", "200g veg", "10g olive oil", "cumin, lemon"],
-    steps: ["Couscous in a bowl + 60ml boiling water + pinch salt + few drops oil. Cover 5 min, fluff.", "Pan-cook the chicken.", "Steam the veg.", "Combine, finish with lemon + cumin."] },
+  { id: "L1", name: "Eggs & potato (cheapest)", macros: "≈600 kcal · 40g P", budget: "€",
+    ingredients: ["4 whole eggs + 2 egg whites", "250g raw potato", "carrot/zucchini", "10g olive oil", "cumin, lemon, parsley"],
+    steps: ["Boil the potatoes (see basics).", "Scramble or fry the eggs in a touch of oil (low heat).", "Steam/sauté the veg.", "Plate together, cumin + lemon."] },
+  { id: "L2", name: "Tuna & potato/rice", macros: "≈620 kcal · 55g P", budget: "€",
+    ingredients: ["2 cans tuna in water (drained ~200g)", "200g raw potato OR 50g dry rice", "10g olive oil", "lemon, parsley"],
+    steps: ["Boil the potatoes or cook the rice.", "Drain tuna well.", "Combine, drizzle oil + lemon, salt, parsley."] },
+  { id: "L3", name: "Chicken & rice (treat)", macros: "≈600 kcal · 55g P", budget: "€€",
+    ingredients: ["150g raw chicken breast", "60g dry rice", "carrot/zucchini", "10g olive oil", "cumin, lemon"],
+    steps: ["Start the rice.", "Season and pan-cook the chicken.", "Sauté the veg.", "Plate, squeeze lemon."] },
 ];
 
 export const DINNERS = [
-  { id: "D1", name: "Eggs & cheese plate", macros: "≈520 kcal · 48g P",
-    ingredients: ["3 whole eggs + 3 egg whites", "30g hard cheese", "50g bread/baguette", "salad + 5g olive oil"],
-    steps: ["Boil eggs 8–9 min OR make an omelette in a non-stick pan with a touch of oil (3–4 min, fold).", "Slice cheese + bread.", "Dress salad with oil + lemon."] },
-  { id: "D2", name: "Sardines & potato", macros: "≈510 kcal · 44g P · omega-3",
-    ingredients: ["120g canned sardines (drained)", "250g raw potato", "salad, lemon, parsley"],
-    steps: ["Boil the potatoes.", "Drain sardines, lay over potato.", "Lemon + parsley, salad on the side."] },
-  { id: "D3", name: "Chicken & bread", macros: "≈500 kcal · 52g P",
-    ingredients: ["180g raw chicken breast", "60g bread", "grilled veg (pepper, zucchini)", "5g olive oil, cumin"],
-    steps: ["Season and pan/grill the chicken.", "Grill/sauté the veg.", "Serve with bread."] },
+  { id: "D1", name: "Eggs, cheese & bread", macros: "≈520 kcal · 40g P", budget: "€",
+    ingredients: ["3 whole eggs + 3 egg whites", "30g hard cheese", "50g bread/baguette", "10g olive oil"],
+    steps: ["Boil eggs 8–9 min OR make an omelette with a touch of oil.", "Slice cheese + bread.", "Add any cheap veg you have."] },
+  { id: "D2", name: "Sardines & potato", macros: "≈510 kcal · 30g P · omega-3", budget: "€",
+    ingredients: ["1 can sardines (drained)", "250g raw potato", "lemon, parsley"],
+    steps: ["Boil the potatoes.", "Drain sardines, lay over potato.", "Lemon + parsley."] },
+  { id: "D3", name: "Pasta & tuna (budget)", macros: "≈560 kcal · 45g P", budget: "€",
+    ingredients: ["60g dry pasta", "1 can tuna", "10g olive oil", "cumin, lemon (only if wheat sits well with you)"],
+    steps: ["Boil the pasta until tender, drain.", "Stir through drained tuna + olive oil + lemon + cumin.", "Add a little grated cheese if you like."] },
 ];
 
 export const SNACK = {
@@ -76,27 +78,27 @@ export const SNACK = {
 
 export const DAILY_EXTRAS = "Top-up: 30g hard cheese + 1 small fruit (banana/clementine) ≈ 215 kcal, 8g P.";
 
+export const BUDGET_NOTE =
+  "Eat cheap on purpose: eggs, potatoes, rice, pasta, oats and canned fish are your protein-and-energy backbone — all cheap. " +
+  "Chicken is the priciest thing here, so it's only ~2 days a week. Your whey covers a big slice of protein and you already own it. " +
+  "Buy whatever veg is cheapest and in season (carrots and potatoes are the cheapest). Skip anything on this list you can't afford this week — it still works.";
+
 export const GROCERY = [
-  { item: "Chicken breast", qty: "1.5 kg" },
-  { item: "Eggs", qty: "18–24" },
+  { item: "Eggs", qty: "30 (2½ dozen)", tag: "cheap protein" },
   { item: "Canned tuna (in water)", qty: "5 cans" },
   { item: "Canned sardines", qty: "3 cans" },
-  { item: "Hard/aged cheese", qty: "300 g" },
+  { item: "Chicken breast", qty: "800 g (only ~2 meals)", tag: "priciest" },
+  { item: "Hard cheese", qty: "200 g" },
+  { item: "Potatoes", qty: "3 kg", tag: "cheap + filling" },
   { item: "White rice", qty: "1 kg" },
-  { item: "Potatoes", qty: "2 kg" },
-  { item: "Couscous", qty: "500 g" },
+  { item: "Pasta", qty: "500 g" },
   { item: "Oats", qty: "500 g" },
-  { item: "Bread / baguette", qty: "4–5 (fresh)" },
-  { item: "Bananas / clementines", qty: "7" },
-  { item: "Olive oil", qty: "1 bottle" },
-  { item: "Lemons", qty: "6–7" },
-  { item: "Zucchini", qty: "4" },
-  { item: "Carrots", qty: "6" },
-  { item: "Green beans", qty: "500 g" },
-  { item: "Bell peppers", qty: "3" },
-  { item: "Lettuce", qty: "1–2 heads" },
-  { item: "Cucumbers", qty: "4" },
-  { item: "Tomatoes", qty: "6" },
+  { item: "Bread / baguette", qty: "buy fresh as needed" },
+  { item: "Carrots", qty: "1 kg", tag: "cheapest veg" },
+  { item: "Zucchini (or any cheap veg)", qty: "3–4" },
+  { item: "Bananas (or cheapest fruit)", qty: "7" },
+  { item: "Olive oil", qty: "1 bottle (lasts weeks)" },
+  { item: "Lemons", qty: "4–5" },
   { item: "Cumin, paprika, salt, pepper, herbs", qty: "as needed" },
   { item: "Coffee / plain tea", qty: "as needed" },
 ];
@@ -178,6 +180,60 @@ export const MILESTONES = (() => {
   out.push({ kg: 32.7, icon: "◆", label: "GOAL 80 kg" });
   return out.sort((a, b) => a.kg - b.kg);
 })();
+
+/* ---------- Batch meal prep: cook once, eat all week ---------- */
+export const MEAL_PREP = {
+  intro: "One cooking session (~75 min). Cook everything, portion into containers, and you're done thinking about food for the week.",
+  // Batch quantities aligned with the weekly grocery list (≈7 days)
+  batch: [
+    { item: "Eggs", cook: "Hard-boil ~12 eggs, 9 min. Leave in shell. (Keep the rest raw for fresh scrambles.)", yields: "egg lunches/dinners + snacks", store: "Fridge 5–7 days in shell" },
+    { item: "Potatoes", cook: "Boil ~3 kg cubed potatoes 15–20 min, drain, cool.", yields: "~10 potato servings", store: "Fridge 4 days · freeze extra" },
+    { item: "White rice", cook: "Cook a big batch (~250 g dry → ~750 g cooked).", yields: "~4 rice servings", store: "Fridge ≤3 days OR freeze. Cool fast, reheat until steaming hot" },
+    { item: "Chicken breast", cook: "Season ~800 g (salt, cumin, pepper, lemon). Bake at 200°C ~25–30 min.", yields: "~4 portions of ~150 g cooked", store: "Fridge 3 days · freeze the rest" },
+    { item: "Vegetables", cook: "Chop carrots + zucchini (or whatever's cheap). Toss with olive oil + cumin + salt. Roast at 200°C ~25 min.", yields: "veg for the week", store: "Fridge 4 days" },
+    { item: "Pasta", cook: "Cook fresh per meal (10 min) — it doesn't store as well.", yields: "—", store: "—" },
+    { item: "Tuna / sardines", cook: "No prep — canned. Open on the day.", yields: "—", store: "Pantry" },
+  ],
+  prepDay: [
+    "Preheat oven to 200°C. Put a big pot of salted water on to boil.",
+    "Chop all the veg, spread on trays with olive oil + cumin + salt → into the oven (~25 min).",
+    "Boil the cubed potatoes in the big pot (15–20 min).",
+    "In a second pot, hard-boil the eggs (9 min), then cool in cold water.",
+    "Cook the rice (rinse, simmer, rest).",
+    "Season all the chicken and bake it (or pan-cook in batches) until no pink inside.",
+    "Let everything cool ~30 min (don't seal hot food — it spoils faster).",
+    "Portion into containers. Label them. Fridge what you'll eat in 3 days; FREEZE the rest.",
+  ],
+  storage: [
+    "Use airtight containers. Fridge max 3–4 days; freeze anything beyond that.",
+    "Rice safety: cool within ~1 hour and always reheat until steaming hot.",
+    "Reheat chicken until hot all the way through.",
+    "Add lemon, olive oil and fresh salad on the day — don't pre-dress.",
+    "Eat sardines fresh from the can (oily fish is best not stored cooked).",
+  ],
+  containers: "Aim for 7 lunch containers + 7 dinner containers (or fewer if you freeze half and defrost as you go). Write the day on each lid.",
+};
+
+/* ---------- Ranks: level up by stacking disciplined days ---------- */
+export const RANKS = [
+  { min: 0,   title: "Rookie",       icon: "●" },
+  { min: 3,   title: "Committed",    icon: "◆" },
+  { min: 7,   title: "Disciplined",  icon: "★" },
+  { min: 14,  title: "Locked In",    icon: "✦" },
+  { min: 30,  title: "Relentless",   icon: "▲" },
+  { min: 60,  title: "Machine",      icon: "⬢" },
+  { min: 100, title: "Unbreakable",  icon: "♦" },
+];
+
+/* ---------- Default daily reminders (times the user can edit) ---------- */
+export const DEFAULT_REMINDERS = [
+  { id: "weigh",  label: "Weigh in",        time: "08:00", on: true,  body: "Step on the scale and log it. 5 seconds." },
+  { id: "fast",   label: "Break your fast", time: "12:30", on: true,  body: "Eating window open. Time for Meal 1." },
+  { id: "shake",  label: "Protein shake",   time: "16:00", on: true,  body: "2 scoops whey. Hit your 180g protein." },
+  { id: "train",  label: "Workout",         time: "18:00", on: true,  body: "Time to train. Beat last time." },
+  { id: "dinner", label: "Dinner",          time: "19:30", on: true,  body: "Meal 2. Last food before the fast." },
+  { id: "wind",   label: "Wind down",       time: "21:00", on: false, body: "Stop eating. Water only. Check today's wins." },
+];
 
 export const DAILY_LINES = [
   "Discipline beats motivation. Just do what's on the screen.",

@@ -3,6 +3,7 @@
    ============================================================ */
 import { isPinSet, createPin, unlock } from "./pin.js";
 import { initRouter } from "./router.js";
+import { scheduleAll } from "./reminders.js";
 
 /* ---- service worker (offline + installable) ---- */
 if ("serviceWorker" in navigator) {
@@ -92,6 +93,7 @@ function enterApp() {
   lockEl.hidden = true;
   appEl.hidden = false;
   initRouter();
+  scheduleAll().catch(() => {});   // (re)arm daily reminders if permission granted
 }
 
 function startLock() {

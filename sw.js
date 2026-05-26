@@ -1,6 +1,6 @@
 /* LOCK IN service worker — cache app shell for offline use.
    Bump CACHE version whenever app files change. */
-const CACHE = "lockin-v1";
+const CACHE = "lockin-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -20,6 +20,8 @@ const ASSETS = [
   "./js/data.js",
   "./js/ui.js",
   "./js/backup.js",
+  "./js/confetti.js",
+  "./js/reminders.js",
   "./js/screens/today.js",
   "./js/screens/weight.js",
   "./js/screens/meals.js",
@@ -38,6 +40,16 @@ self.addEventListener("activate", (e) => {
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
     ).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  e.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((cl) => {
+      for (const c of cl) if ("focus" in c) return c.focus();
+      if (self.clients.openWindow) return self.clients.openWindow("./index.html");
+    })
   );
 });
 

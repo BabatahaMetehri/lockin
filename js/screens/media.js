@@ -62,13 +62,53 @@ export async function renderMedia(root) {
   addCard.appendChild(pickBtn);
   addCard.appendChild(fileInp);
   addCard.appendChild(status);
+
+  // ---- voice note recorder ----
+  const recWrap = el("div", { style: "margin-top:12px;border-top:1px solid var(--line);padding-top:12px" });
+  const recBtn = el("button.btn ghost", { text: "🎙️ Record voice note" });
+  const recStatus = el("p.muted", { text: "", style: "font-size:.85rem" });
+  let mediaRec = null, chunks = [], stream = null, ticking = null;
+  recBtn.addEventListener("click", async () => {
+    if (mediaRec && mediaRec.state === "recording") { mediaRec.stop(); return; }
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      chunks = [];
+      mediaRec = new MediaRecorder(stream);
+      mediaRec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
+      mediaRec.onstop = async () => {
+        clearInterval(ticking);
+        stream.getTracks().forEach((t) => t.stop());
+        recBtn.textContent = "🎙️ Record voice note"; recBtn.classList.add("ghost");
+        const blob = new Blob(chunks, { type: mediaRec.mimeType || "audio/webm" });
+        recStatus.textContent = "Encrypting…";
+        const bytes = new Uint8Array(await blob.arrayBuffer());
+        const { iv, cipher } = await encryptBytes(getMediaKey(), bytes);
+        await putMedia({
+          id: "m_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7),
+          date: todayKey(), type: "audio", category: "voice",
+          label: labelInp.value || "voice note", mime: blob.type, iv, cipher,
+        });
+        labelInp.value = ""; recStatus.textContent = "";
+        toast("Voice note saved 🔒");
+        await renderGallery(galleryHost);
+      };
+      mediaRec.start();
+      const t0 = Date.now();
+      recBtn.textContent = "⏹ Stop recording"; recBtn.classList.remove("ghost");
+      ticking = setInterval(() => { recStatus.textContent = "Recording… " + Math.floor((Date.now() - t0) / 1000) + "s"; }, 250);
+    } catch (e) { recStatus.textContent = "Mic blocked: " + e.message; }
+  });
+  recWrap.appendChild(recBtn);
+  recWrap.appendChild(recStatus);
+  addCard.appendChild(recWrap);
+
   addCard.appendChild(el("p.note", { text: "Tip: keep videos short (10–30s) so they stay fast and don't fill your phone.", style: "margin-top:10px" }));
   root.appendChild(addCard);
 
   // ---- controls ----
   const controls = card(null, []);
   const filterRow = el("div", { style: "display:flex;gap:8px;flex-wrap:wrap" }, [
-    filterBtn("all", "All"), filterBtn("body", "Body"), filterBtn("face", "Face"),
+    filterBtn("all", "All"), filterBtn("body", "Body"), filterBtn("face", "Face"), filterBtn("voice", "Voice"),
   ]);
   controls.appendChild(filterRow);
   const cmpBtn = el("button.btn " + (compareMode ? "" : "ghost") + " sm", {
@@ -100,8 +140,26 @@ async function renderGallery(host) {
     return;
   }
 
+  // audio notes render as a full-width list (not square tiles)
+  const audio = items.filter((m) => m.type === "audio");
+  const visual = items.filter((m) => m.type !== "audio");
+  for (const m of audio) {
+    const url = await toObjectURL(m).catch(() => null);
+    host.appendChild(el("div.grocery-item", { style: "align-items:center" }, [
+      el("div", {}, [
+        el("div", { html: `🎙️ <b>${m.label || "voice note"}</b>` }),
+        el("div.sub", { text: m.date, style: "font-size:.78rem;color:var(--muted)" }),
+        url ? el("audio", { src: url, controls: true, style: "margin-top:6px;width:100%" }) : el("span.muted", { text: "decrypt error" }),
+      ]),
+      el("button.btn warn sm", { text: "✕", onclick: async () => { if (confirm("Delete this voice note?")) { await deleteMedia(m.id); renderGallery(host); } } }),
+    ]));
+  }
+
+  if (!visual.length && !audio.length) { host.appendChild(el("p.muted", { text: "Nothing here yet." })); return; }
+  if (!visual.length) return;
+
   const grid = el("div.media-grid");
-  for (const m of items) {
+  for (const m of visual) {
     const cell = el("div.media-cell" + (selection.includes(m.id) ? ".sel" : ""));
     cell.appendChild(el("span.media-badge pill " + (m.type === "video" ? "orange" : "lime"), { text: m.type === "video" ? "▶" : m.category[0].toUpperCase() }));
     try {
