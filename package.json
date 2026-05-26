@@ -1,0 +1,20 @@
+{
+  "name": "weight-loss",
+  "version": "1.0.0",
+  "description": "A no-excuses, offline, **100% private** weight-loss app. Everything (logs, photos, videos) stays **only on your device**, locked behind a PIN. Open it and just do what's on the **TODAY** screen.",
+  "main": "sw.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node test/calc.test.mjs && node test/chart.test.mjs && node test/crypto.test.mjs && node test/smoke.mjs && node test/media-smoke.mjs && node test/offline-smoke.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "playwright": "^1.60.0"
+  }
+}

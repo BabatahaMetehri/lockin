@@ -18,6 +18,8 @@ const ASSETS = [
   "./js/backup.js",
   "./js/chart.js",
   "./js/data.js",
+  "./js/ui.js",
+  "./js/backup.js",
   "./js/screens/today.js",
   "./js/screens/weight.js",
   "./js/screens/meals.js",
