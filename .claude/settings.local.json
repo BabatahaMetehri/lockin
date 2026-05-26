@@ -5,7 +5,10 @@
       "Bash(git add *)",
       "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Add design spec for LOCK IN weight loss coaching app *)",
       "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Expand spec: recipes, grocery quantities, no-equipment training, photos+videos, phone+PC *)",
-      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Add implementation plan for LOCK IN app *)"
+      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Add implementation plan for LOCK IN app *)",
+      "Bash(node test/calc.test.mjs)",
+      "Bash(node test/chart.test.mjs)",
+      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Build PWA shell + data/store/calc/chart layers with passing tests *)"
     ]
   }
 }
