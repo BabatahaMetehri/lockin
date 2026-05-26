@@ -28,7 +28,11 @@
       "Bash(taskkill //F //IM node.exe)",
       "Bash(node test/_diag.mjs)",
       "Bash(node -e \"const fs=require\\('fs'\\);const p=JSON.parse\\(fs.readFileSync\\('package.json'\\)\\);p.type='module';p.scripts={test:'node test/calc.test.mjs && node test/chart.test.mjs && node test/crypto.test.mjs && node test/smoke.mjs && node test/media-smoke.mjs && node test/offline-smoke.mjs'};fs.writeFileSync\\('package.json',JSON.stringify\\(p,null,2\\)\\);console.log\\('updated'\\)\")",
-      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Build full LOCK IN app: security, all screens, tests passing *)"
+      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Build full LOCK IN app: security, all screens, tests passing *)",
+      "Bash(node test/_shots.mjs)",
+      "Bash(rm -f test/_shots.mjs test/*.png)",
+      "Bash(printf \"node_modules/\\\\npackage-lock.json\\\\ntest/*.png\\\\ntest/_*.mjs\\\\n\")",
+      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Ignore test artifacts; verified UI visually *)"
     ]
   }
 }
