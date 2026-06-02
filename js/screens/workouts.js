@@ -8,8 +8,34 @@
    ============================================================ */
 import { el, card, pageHead } from "../ui.js";
 import { WORKOUTS, OVERLOAD_RULE, TRAINING_NOTE, WARMUP, COOLDOWN, WEEK_SCHEDULE } from "../data.js";
-import { logWorkout, getLastWorkout, setDayLog, todayKey, getSettings } from "../store.js";
+import { logWorkout, getLastWorkout, setDayLog, todayKey, getSettings, getState } from "../store.js";
 import { toast } from "../router.js";
+import { beep, vibrate, chime } from "../feedback.js";
+
+/** Walk history, return the personal best for an exercise of a given kind. */
+function bestFor(name, kind) {
+  let best = null;
+  const wl = getState().workoutLog || [];
+  for (const session of wl) {
+    for (const ex of session.exercises) {
+      if (ex.name !== name) continue;
+      for (const set of ex.sets) {
+        let val;
+        if (kind === "time") val = set.seconds || 0;
+        else if (kind === "reps_weight") val = (set.reps || 0) * Math.max(1, set.load || 1);
+        else val = set.reps || 0;
+        if (val > 0 && (best == null || val > best.value)) best = { value: val, set, kind };
+      }
+    }
+  }
+  return best;
+}
+function prDisplay(best) {
+  if (!best) return null;
+  if (best.kind === "time") return `🥇 PR ${best.set.seconds}s`;
+  if (best.kind === "reps_weight") return `🥇 PR ${best.set.reps}×${best.set.load}kg`;
+  return `🥇 PR ${best.set.reps} reps`;
+}
 
 let pendingOpen = null;
 window.addEventListener("open-workout", (e) => { pendingOpen = e.detail; });
@@ -46,7 +72,13 @@ function renderList(root) {
     const c = card(`<span class="tag">Workout ${w.id}</span> ${w.title}` + (isToday ? ' <span class="pill lime">TODAY</span>' : ""), []);
     if (w.duration) c.appendChild(el("p.muted", { text: w.duration, style: "font-size:.8rem;margin-top:-6px" }));
     const ul = el("ul.list-reset");
-    exs.forEach((ex) => ul.appendChild(el("li", { html: `<b>${ex.name}</b> — <span class="accent">${ex.scheme}</span>`, style: "padding:6px 0;border-bottom:1px solid var(--line)" })));
+    exs.forEach((ex) => {
+      const pr = prDisplay(bestFor(ex.name, ex.kind || "reps"));
+      ul.appendChild(el("li", {
+        html: `<b>${ex.name}</b> — <span class="accent">${ex.scheme}</span>` + (pr ? ` <span class="pill orange" style="font-size:.62rem;margin-left:6px">${pr}</span>` : ""),
+        style: "padding:6px 0;border-bottom:1px solid var(--line)"
+      }));
+    });
     c.appendChild(ul);
     c.appendChild(el("button.btn big", { text: "▶ Start session", onclick: () => renderSession(clear(root), w.id), style: "margin-top:12px" }));
     root.appendChild(c);
@@ -82,6 +114,8 @@ function renderSession(root, id) {
       const summary = prev.map((s) => s.seconds ? `${s.seconds}s` : s.load ? `${s.reps}×${s.load}kg` : `${s.reps}`).join(", ");
       wrap.appendChild(el("p.ex-prev", { html: `🎯 Beat last: ${summary}` }));
     }
+    const pr = prDisplay(bestFor(ex.name, ex.kind || "reps"));
+    if (pr) wrap.appendChild(el("p.ex-prev", { html: pr, style: "color:var(--lime)" }));
 
     const entry = { name: ex.name, kind: ex.kind || "reps", sets: [] };
     const sets = (ex.target && ex.target.sets) || 3;
@@ -106,6 +140,7 @@ function renderSession(root, id) {
     };
     logWorkout(entry);
     setDayLog(todayKey(), { workoutDone: true });
+    chime();
     toast("Workout logged 💪");
     renderList(clear(root));
   }}));
@@ -135,7 +170,7 @@ function timerRow(i, target, prev, entry) {
   entry.sets.push(setObj);
   const goal = target && target.seconds ? target.seconds : 20;
   const disp = el("div.tdisp", { text: "0s" });
-  let interval = null, t0 = 0;
+  let interval = null, t0 = 0, signaled = false;
   const btn = el("button.start", { text: "Start" });
   btn.addEventListener("click", () => {
     if (interval) { // stop
@@ -144,10 +179,13 @@ function timerRow(i, target, prev, entry) {
     } else { // start
       t0 = Date.now() - (setObj.seconds * 1000);
       btn.textContent = "Stop"; btn.className = "stop";
+      signaled = setObj.seconds >= goal;
       interval = setInterval(() => {
         setObj.seconds = Math.floor((Date.now() - t0) / 1000);
         disp.textContent = setObj.seconds + "s";
-        disp.classList.toggle("urgent", setObj.seconds >= goal);
+        const past = setObj.seconds >= goal;
+        disp.classList.toggle("urgent", past);
+        if (past && !signaled) { signaled = true; beep(1320, 240); vibrate([60, 40, 60]); }
         setObj.reps = setObj.seconds; // count "rep" for tasks complete
       }, 200);
     }

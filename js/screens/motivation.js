@@ -2,7 +2,7 @@
    motivation.js — streak, milestone badges, your "why", daily line.
    ============================================================ */
 import { el, card, pageHead, statBox } from "../ui.js";
-import { getState, getSettings, setSettings, latestWeight } from "../store.js";
+import { getState, getSettings, setSettings, latestWeight, getDayLog } from "../store.js";
 import { currentStreak, totalLost, lockedInDays, rankFor, weeklyRate, etaToGoal } from "../calc.js";
 import { MILESTONES, DAILY_LINES, RANKS } from "../data.js";
 import { buildMonth } from "../calendar.js";
@@ -39,6 +39,18 @@ export function renderMotivation(root) {
   RANKS.forEach((r) => ladder.appendChild(el("span.pill " + (days >= r.min ? "lime" : "mut"), { html: `${r.icon} ${r.title}`, style: "font-size:.62rem" })));
   rankCard.appendChild(ladder);
   root.appendChild(rankCard);
+
+  // ---- WEEKLY REVIEW ----
+  const wr = weeklyReview(state, new Date());
+  const wrCard = card('📊 <span class="tag">This week</span>', []);
+  wrCard.appendChild(el("div.stat-row", {}, [
+    statBox(wr.daysWon + "/7", "days won", "lime"),
+    statBox(wr.workouts, "workouts", "lime"),
+    statBox(wr.avgWeight ? wr.avgWeight.toFixed(1) : "—", "avg kg"),
+    statBox(wr.weightDelta == null ? "—" : (wr.weightDelta <= 0 ? "−" : "+") + Math.abs(wr.weightDelta).toFixed(1), "vs last wk", wr.weightDelta < 0 ? "lime" : wr.weightDelta > 0 ? "orange" : ""),
+  ]));
+  wrCard.appendChild(el("p", { html: wr.message, style: "margin:6px 0 0" }));
+  root.appendChild(wrCard);
 
   // ---- monthly streak calendar ----
   const now = new Date();
@@ -91,8 +103,68 @@ export function renderMotivation(root) {
   msCard.appendChild(grid);
   root.appendChild(msCard);
 
+  // calendar day drill-down
+  document.querySelectorAll(".cal .d").forEach((cell, i) => {
+    const txt = cell.textContent.trim(); if (!txt) return;
+    cell.style.cursor = "pointer";
+    cell.addEventListener("click", () => {
+      const day = parseInt(txt, 10);
+      const k = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      openDayDetail(k);
+    });
+  });
+
   // all daily lines
   const linesCard = card('📣 <span class="tag">Reminders</span>', []);
   DAILY_LINES.forEach((l) => linesCard.appendChild(el("p", { text: "› " + l, style: "color:var(--muted);margin:6px 0" })));
   root.appendChild(linesCard);
+}
+
+/** Summarise the last 7 days vs the 7 before. */
+function weeklyReview(state, now) {
+  const day = (n) => { const d = new Date(now); d.setDate(d.getDate() - n);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+  let daysWon = 0, workouts = 0, weightsSum = 0, weightsN = 0;
+  for (let i = 0; i < 7; i++) {
+    const k = day(i); const log = state.dayLogs[k];
+    if (log) { if (log.checks && log.checks.__won) daysWon++; if (log.workoutDone) workouts++; }
+    const w = state.weights.find((x) => x.date === k);
+    if (w) { weightsSum += w.kg; weightsN++; }
+  }
+  const avgWeight = weightsN ? weightsSum / weightsN : null;
+  let prevSum = 0, prevN = 0;
+  for (let i = 7; i < 14; i++) { const k = day(i); const w = state.weights.find((x) => x.date === k); if (w) { prevSum += w.kg; prevN++; } }
+  const prevAvg = prevN ? prevSum / prevN : null;
+  const weightDelta = (avgWeight != null && prevAvg != null) ? avgWeight - prevAvg : null;
+  let message;
+  if (daysWon >= 5) message = "🔥 Outstanding week — keep the chain.";
+  else if (daysWon >= 3) message = "Solid week. Push for 5 next week.";
+  else if (workouts > 0 || daysWon > 0) message = "You showed up. Build on it next week.";
+  else message = "Reset this week. Open the app and check one thing today.";
+  return { daysWon, workouts, avgWeight, weightDelta, message };
+}
+
+/** Modal showing one day's snapshot. */
+function openDayDetail(dateKey) {
+  const log = getDayLog(dateKey);
+  const state = getState();
+  const w = state.weights.find((x) => x.date === dateKey);
+  const session = state.workoutLog.find((s) => s.date === dateKey);
+  const ov = el("div", { style: "position:fixed;inset:0;z-index:80;background:rgba(5,6,8,.96);display:flex;flex-direction:column;align-items:center;padding:24px;overflow:auto" });
+  const close = el("button.btn ghost sm", { text: "✕ Close", onclick: () => ov.remove(), style: "align-self:flex-end" });
+  const body = el("div.card", { style: "max-width:520px;width:100%;margin-top:14px" });
+  const lines = [];
+  lines.push(`<h2 style="font-family:var(--ff-display);font-size:2rem;color:var(--lime);margin:0 0 10px">${dateKey}</h2>`);
+  if (log.checks && log.checks.__won) lines.push(`<p class="pill lime">🏆 DAY WON</p>`);
+  if (w) lines.push(`<p><b>Weight:</b> ${w.kg.toFixed(1)} kg</p>`);
+  if (log.water) lines.push(`<p><b>Water:</b> ${log.water.toFixed(2)} L</p>`);
+  if (log.steps) lines.push(`<p><b>Steps:</b> ${log.steps.toLocaleString()}</p>`);
+  if (log.workoutDone || session) lines.push(`<p><b>Workout:</b> done${session ? ` (${session.workoutId})` : ""}</p>`);
+  const checks = Object.entries(log.checks || {}).filter(([k, v]) => v && !k.startsWith("__")).map(([k]) => k).join(", ");
+  if (checks) lines.push(`<p><b>Checked:</b> ${checks}</p>`);
+  if (log.notes) lines.push(`<p><b>Note:</b> <em>${(log.notes || "").replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]))}</em></p>`);
+  if (lines.length === 1) lines.push(`<p class="muted">Nothing logged this day.</p>`);
+  body.innerHTML = lines.join("");
+  ov.appendChild(close); ov.appendChild(body);
+  document.body.appendChild(ov);
 }

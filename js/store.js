@@ -111,6 +111,19 @@ export function getLastWorkout(workoutId) {
   return null;
 }
 
+/* ---------- ad-hoc / off-plan meals ---------- */
+export function addCustomMeal(date, meal) {
+  const log = getDayLog(date);
+  log.customMeals = log.customMeals || [];
+  log.customMeals.push({ id: "cm_" + Date.now(), ...meal });
+  save();
+}
+export function deleteCustomMeal(date, id) {
+  const log = getDayLog(date);
+  log.customMeals = (log.customMeals || []).filter((m) => m.id !== id);
+  save();
+}
+
 /* ---------- grocery ---------- */
 export function toggleGrocery(item) {
   const s = load();

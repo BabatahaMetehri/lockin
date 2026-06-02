@@ -16,6 +16,10 @@ if ("serviceWorker" in navigator) {
 /* ---- ask the browser to make our storage durable (won't be evicted) ---- */
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 
+/* ---- capture the PWA install prompt; Settings exposes a button to fire it ---- */
+window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); window.__installEvent = e; });
+window.addEventListener("appinstalled", () => { window.__installEvent = null; });
+
 const lockEl = document.getElementById("lock-screen");
 const appEl = document.getElementById("app");
 const dotsEl = document.getElementById("pin-dots");

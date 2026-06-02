@@ -49,6 +49,20 @@ export function renderSettings(root, { refresh }) {
   schCard.appendChild(el("button.btn", { text: "Save schedule", onclick: () => { setSettings({ schedule: sched }); toast("Schedule saved"); refresh(); } }));
   root.appendChild(schCard);
 
+  // ---- install on this device ----
+  if (window.__installEvent) {
+    root.appendChild(card('📲 <span class="tag">Install app</span>', [
+      el("p", { text: "Add LOCK IN to your home screen / desktop for one-tap launch and offline use." }),
+      el("button.btn big", { text: "📲 Install on this device", onclick: async () => {
+        const ev = window.__installEvent; if (!ev) return;
+        ev.prompt(); const choice = await ev.userChoice;
+        window.__installEvent = null;
+        toast(choice.outcome === "accepted" ? "Installed 🎉" : "Maybe later");
+        refresh();
+      } }),
+    ]));
+  }
+
   // ---- auto-lock ----
   const lockCard = card('🔐 <span class="tag">Auto-lock</span>', []);
   const lockSel = el("select.input", {}, [

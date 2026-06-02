@@ -36,7 +36,8 @@
       "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Add prep mode, budget meals, countdowns, ranks, voice notes, reminders *)",
       "Bash(node test/_shot.mjs)",
       "Bash(rm -f test/_shot.mjs test/*.png)",
-      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Major redesign: hero quotes, OMAD air-fryer plan, beginner workouts, price tracking, security *)"
+      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Major redesign: hero quotes, OMAD air-fryer plan, beginner workouts, price tracking, security *)",
+      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Food API logging, PRs, weekly review, calendar drilldown, sound+vibe, install *)"
     ]
   }
 }

@@ -8,6 +8,9 @@ import {
 import { fastingStatus, fmtCountdown } from "../calc.js";
 import { burst } from "../confetti.js";
 import { heroQuote } from "../quotes.js";
+import { tap, chime } from "../feedback.js";
+import { searchFood } from "../foodapi.js";
+import { addCustomMeal, deleteCustomMeal } from "../store.js";
 import {
   WORKOUTS, WEEK_SCHEDULE, LUNCHES, DINNERS, SNACK, SUPPLEMENTS,
   EATING_WINDOW, DAILY_EXTRAS, TARGETS, WARMUP,
@@ -76,10 +79,10 @@ export function renderToday(root, { go, refresh }) {
     const log = getDayLog(date);
     if (done === total && !log.checks.__won) {
       log.checks.__won = true; setDayLog(date, { checks: log.checks });
-      burst();
+      burst(); chime();
       const banner = el("div.toast", { text: "🏆 DAY WON — streak locked" });
       document.body.appendChild(banner); setTimeout(() => banner.remove(), 2400);
-    }
+    } else if (done > 0) tap();
   }
 
   // ---- weigh-in prompt ----
@@ -121,6 +124,9 @@ export function renderToday(root, { go, refresh }) {
   mealCard.appendChild(checkRow({ label: "Optional small bite (only if hungry)", sub: optList(DINNERS), done: !!log.checks.m2, onToggle: () => { toggleCheck(date, "m2"); updateMeter(); } }));
   mealCard.appendChild(el("button.btn ghost", { text: "📖 See recipes & weekly cost →", onclick: () => go("meals"), style: "margin-top:6px" }));
   root.appendChild(mealCard);
+
+  // ---- ad-hoc meal logger (off-plan food + OFF food search) ----
+  root.appendChild(buildLogger(date, refresh));
 
   // ---- supplements ----
   const suppCard = card('💊 <span class="tag">Supplements</span>', []);
@@ -168,6 +174,88 @@ export function renderToday(root, { go, refresh }) {
   root.appendChild(whyCard);
 
   updateMeter(); // initialise from saved state
+}
+
+function buildLogger(date, refresh) {
+  const c = el("section.card", {}, [el("h2", { html: '🍴 <span class="tag">Logged extras</span>' })]);
+  const log = getDayLog(date);
+  const list = el("div");
+  const totalLine = el("p.macro-line", { style: "margin:0 0 10px" });
+
+  function renderList() {
+    list.innerHTML = "";
+    const meals = log.customMeals || [];
+    let k = 0, p = 0;
+    meals.forEach((m) => {
+      k += m.kcal || 0; p += m.protein || 0;
+      list.appendChild(el("div.grocery-item", { style: "align-items:center" }, [
+        el("div", {}, [
+          el("div", { html: `<b>${m.name}</b>` }),
+          el("div.sub", { text: `${m.grams ? m.grams + "g · " : ""}${m.kcal} kcal · ${m.protein}g P`, style: "font-size:.78rem;color:var(--muted)" }),
+        ]),
+        el("button.btn ghost sm", { text: "✕", onclick: () => { deleteCustomMeal(date, m.id); renderList(); } }),
+      ]));
+    });
+    totalLine.textContent = meals.length ? `Total: ${k} kcal · ${Math.round(p)}g P` : "Nothing logged off-plan today.";
+  }
+  renderList();
+
+  // search
+  const q = el("input.input", { placeholder: "Search a food (e.g. tuna, banana)…", style: "flex:1" });
+  const status = el("p.muted", { text: "", style: "font-size:.82rem;margin:4px 0 0" });
+  const results = el("div", { style: "margin-top:8px" });
+  const searchBtn = el("button.btn sm", { text: "Search", onclick: async () => {
+    if (!q.value.trim()) return;
+    results.innerHTML = ""; status.textContent = "Searching…";
+    try {
+      const items = await searchFood(q.value);
+      status.textContent = items.length ? "" : "No results. Try a simpler term or add it manually.";
+      items.forEach((it) => results.appendChild(resultRow(it)));
+    } catch (e) { status.textContent = "Offline or blocked. Add it manually below."; }
+  }});
+
+  function resultRow(it) {
+    const grams = el("input.input", { type: "number", inputmode: "numeric", placeholder: "grams", style: "width:84px" });
+    const add = el("button.btn sm", { text: "+ Add", onclick: () => {
+      const g = parseFloat(grams.value); if (!g) { grams.focus(); return; }
+      const kcal = Math.round(it.kcalPer100g * g / 100);
+      const protein = Math.round(it.proteinPer100g * g / 100 * 10) / 10;
+      addCustomMeal(date, { name: it.name + (it.brand ? ` (${it.brand})` : ""), grams: g, kcal, protein });
+      grams.value = ""; renderList(); tap();
+    }});
+    return el("div.grocery-item", { style: "align-items:center" }, [
+      el("div", {}, [
+        el("div", { text: it.name, style: "font-weight:700" }),
+        el("div.sub", { text: `${it.kcalPer100g} kcal · ${it.proteinPer100g}g P / 100g${it.brand ? " · " + it.brand : ""}`, style: "font-size:.75rem;color:var(--muted)" }),
+      ]),
+      el("div", { style: "display:flex;gap:6px;align-items:center" }, [grams, add]),
+    ]);
+  }
+
+  // manual entry
+  const m = { name: "", kcal: "", protein: "", grams: "" };
+  const mn = el("input.input", { placeholder: "Name", oninput: (e) => m.name = e.target.value });
+  const mg = el("input.input", { type: "number", placeholder: "grams (optional)", oninput: (e) => m.grams = +e.target.value });
+  const mk = el("input.input", { type: "number", placeholder: "kcal", oninput: (e) => m.kcal = +e.target.value });
+  const mp = el("input.input", { type: "number", placeholder: "protein g", oninput: (e) => m.protein = +e.target.value });
+  const addManual = el("button.btn", { text: "+ Log this", onclick: () => {
+    if (!m.name || !m.kcal) return;
+    addCustomMeal(date, { name: m.name, grams: m.grams || null, kcal: m.kcal, protein: m.protein || 0 });
+    [mn, mg, mk, mp].forEach((i) => i.value = ""); m.name = m.kcal = m.protein = ""; m.grams = "";
+    renderList(); tap();
+  }});
+
+  c.appendChild(totalLine);
+  c.appendChild(list);
+  c.appendChild(el("hr.divider"));
+  c.appendChild(el("div", { style: "display:flex;gap:8px;flex-wrap:wrap" }, [q, searchBtn]));
+  c.appendChild(status);
+  c.appendChild(results);
+  c.appendChild(el("hr.divider"));
+  c.appendChild(el("p.kicker", { text: "Or enter it yourself", style: "margin-bottom:6px" }));
+  c.appendChild(el("div", { style: "display:grid;grid-template-columns:1fr 1fr;gap:6px" }, [mn, mg, mk, mp]));
+  c.appendChild(addManual);
+  return c;
 }
 
 function tile(ico, lbl, sub, onClick) {
