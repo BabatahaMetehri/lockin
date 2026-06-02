@@ -362,3 +362,18 @@ small.note{ color:var(--muted-2); font-size:.78rem; }
 .screen > *{ animation:fadeUp .35s cubic-bezier(.2,.8,.2,1); }
 @keyframes fadeUp{ from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)} }
 .lock-attempts{ color:var(--orange); font-size:.78rem; margin-top:8px; font-weight:700; }
+
+/* ============================================================
+   Live food autocomplete (Today → Logged extras)
+   ============================================================ */
+.ac-list{ margin-top:6px; background:var(--bg-2); border:1px solid var(--line); border-radius:var(--r);
+  overflow:hidden; max-height:340px; overflow-y:auto; animation:fadeUp .15s ease; }
+.ac-row{ display:flex; align-items:center; justify-content:space-between; gap:10px;
+  width:100%; background:transparent; border:0; border-bottom:1px solid var(--line);
+  padding:12px 14px; text-align:left; color:var(--text); cursor:pointer; transition:.12s; }
+.ac-row:hover, .ac-row:focus{ background:rgba(198,241,53,.08); outline:none; }
+.ac-row:last-child{ border-bottom:0; }
+.ac-row .ac-name{ font-weight:700; font-size:.92rem; }
+.ac-row .ac-mac{ font-size:.75rem; color:var(--muted); margin-top:2px; }
+.ac-adder{ margin-top:8px; padding:14px; background:var(--surface);
+  border:1px solid rgba(198,241,53,.4); border-radius:var(--r); animation:fadeUp .2s ease; }
