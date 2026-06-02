@@ -1,6 +1,6 @@
 /* LOCK IN service worker — cache app shell for offline use.
    Bump CACHE version whenever app files change. */
-const CACHE = "lockin-v2";
+const CACHE = "lockin-v3";
 const ASSETS = [
   "./",
   "./index.html",
@@ -22,6 +22,8 @@ const ASSETS = [
   "./js/backup.js",
   "./js/confetti.js",
   "./js/reminders.js",
+  "./js/quotes.js",
+  "./js/calendar.js",
   "./js/screens/today.js",
   "./js/screens/weight.js",
   "./js/screens/meals.js",

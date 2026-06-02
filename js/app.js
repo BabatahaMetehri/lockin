@@ -1,9 +1,10 @@
 /* ============================================================
    app.js — bootstrap: service worker, PIN gate, launch router.
    ============================================================ */
-import { isPinSet, createPin, unlock } from "./pin.js";
+import { isPinSet, createPin, unlock, lock } from "./pin.js";
 import { initRouter } from "./router.js";
 import { scheduleAll } from "./reminders.js";
+import { getSettings, setSettings } from "./store.js";
 
 /* ---- service worker (offline + installable) ---- */
 if ("serviceWorker" in navigator) {
@@ -11,6 +12,9 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(() => {/* ignore on file:// */});
   });
 }
+
+/* ---- ask the browser to make our storage durable (won't be evicted) ---- */
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 
 const lockEl = document.getElementById("lock-screen");
 const appEl = document.getElementById("app");
@@ -24,6 +28,16 @@ const PIN_LEN = 4;
 let mode = "unlock";          // 'create' | 'confirm' | 'unlock'
 let buffer = "";
 let firstEntry = "";
+
+/* PIN rate limit: exponential lockout after wrong attempts (anti brute force). */
+const LOCKOUT_STEPS = [0, 0, 0, 10, 30, 60, 120, 300]; // seconds for each consecutive failure
+function getAttempts() { return getSettings().pinAttempts || 0; }
+function getLockoutUntil() { return getSettings().pinLockUntil || 0; }
+function setAttempts(n, lockUntil) { setSettings({ pinAttempts: n, pinLockUntil: lockUntil || 0 }); }
+function lockoutSecondsLeft() {
+  const t = getLockoutUntil() - Date.now();
+  return t > 0 ? Math.ceil(t / 1000) : 0;
+}
 
 function renderDots() {
   dotsEl.innerHTML = "";
@@ -76,10 +90,20 @@ async function submit() {
     enterApp();
     return;
   }
-  // unlock
+  // unlock — enforce rate limit
+  const wait = lockoutSecondsLeft();
+  if (wait > 0) { buffer = ""; renderDots(); fail(`Too many tries. Wait ${wait}s.`); return; }
   const ok = await unlock(buffer);
-  if (ok) { enterApp(); }
-  else { buffer = ""; renderDots(); fail("Wrong PIN"); }
+  if (ok) {
+    setAttempts(0, 0);
+    enterApp();
+  } else {
+    const n = getAttempts() + 1;
+    const step = LOCKOUT_STEPS[Math.min(n, LOCKOUT_STEPS.length - 1)] || 300;
+    setAttempts(n, step ? Date.now() + step * 1000 : 0);
+    buffer = ""; renderDots();
+    fail(step > 0 ? `Wrong PIN — locked ${step}s` : "Wrong PIN");
+  }
 }
 
 function fail(msg) {
@@ -94,6 +118,27 @@ function enterApp() {
   appEl.hidden = false;
   initRouter();
   scheduleAll().catch(() => {});   // (re)arm daily reminders if permission granted
+  startAutoLock();
+}
+
+/* Auto-lock on inactivity (default 5 min). Resets on touch/click/keypress. */
+let idleTimer = null;
+function startAutoLock() {
+  const minutes = getSettings().autoLockMinutes ?? 5;
+  if (!minutes) return; // disabled
+  const resetIdle = () => {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => relock(), minutes * 60 * 1000);
+  };
+  ["touchstart", "click", "keydown", "mousemove"].forEach((e) => window.addEventListener(e, resetIdle, { passive: true }));
+  document.addEventListener("visibilitychange", () => { if (document.hidden) resetIdle(); });
+  resetIdle();
+}
+function relock() {
+  clearTimeout(idleTimer);
+  lock();
+  appEl.hidden = true;
+  startLock();
 }
 
 function startLock() {

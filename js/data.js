@@ -44,63 +44,81 @@ export const RECIPE_BASICS = [
   { name: "Sautéed/steamed veg", steps: "Chop veg, sauté in remaining oil 6–8 min (or steam 8 min). Salt + parsley." },
 ];
 
-/* Each option is interchangeable. Pick ONE lunch + ONE dinner per day.
-   Budget-first: eggs, potato, rice, pasta and canned fish are the cheap
-   backbone. Chicken is the priciest item — keep it to ~2 days/week. */
+/* ONE BIG MEAL A DAY (~1200 kcal, ~75g P) + 3 whey scoops across the day
+   + an optional small bite if hungry before the fast. Air-fryer first.
+   No pasta. Same simple ingredients on repeat. */
 export const LUNCHES = [
-  { id: "L1", name: "Eggs & potato (cheapest)", macros: "≈600 kcal · 40g P", budget: "€",
-    ingredients: ["4 whole eggs + 2 egg whites", "250g raw potato", "carrot/zucchini", "10g olive oil", "cumin, lemon, parsley"],
-    steps: ["Boil the potatoes (see basics).", "Scramble or fry the eggs in a touch of oil (low heat).", "Steam/sauté the veg.", "Plate together, cumin + lemon."] },
-  { id: "L2", name: "Tuna & potato/rice", macros: "≈620 kcal · 55g P", budget: "€",
-    ingredients: ["2 cans tuna in water (drained ~200g)", "200g raw potato OR 50g dry rice", "10g olive oil", "lemon, parsley"],
-    steps: ["Boil the potatoes or cook the rice.", "Drain tuna well.", "Combine, drizzle oil + lemon, salt, parsley."] },
-  { id: "L3", name: "Chicken & rice (treat)", macros: "≈600 kcal · 55g P", budget: "€€",
-    ingredients: ["150g raw chicken breast", "60g dry rice", "carrot/zucchini", "10g olive oil", "cumin, lemon"],
-    steps: ["Start the rice.", "Season and pan-cook the chicken.", "Sauté the veg.", "Plate, squeeze lemon."] },
+  { id: "M1", name: "Air-fryer chicken & rice", macros: "≈1150 kcal · 80g P", budget: "€€", time: "20 min",
+    ingredients: ["250g raw chicken breast", "120g dry rice", "200g potato (cubed)", "10g olive oil", "cumin, salt, lemon"],
+    steps: [
+      "Start the rice (rinse, simmer, rest — see basics).",
+      "Season chicken (salt, cumin, pepper, drizzle of oil). Air-fryer 180°C / 18–20 min, flip halfway.",
+      "Cube potato, toss with a little oil + salt + cumin. Air-fryer 200°C / 15 min, shake basket once.",
+      "Plate everything, squeeze lemon. Done.",
+    ] },
+  { id: "M2", name: "Tuna rice bowl (no cook)", macros: "≈1050 kcal · 65g P", budget: "€", time: "12 min",
+    ingredients: ["120g dry rice", "2 cans tuna in water (drained ~200g)", "10g olive oil", "lemon, cumin, salt"],
+    steps: [
+      "Cook the rice.",
+      "Drain the tuna well.",
+      "Pile tuna on rice, drizzle olive oil + lemon + cumin. That's it.",
+    ] },
+  { id: "M3", name: "Sardines & air-fryer potato", macros: "≈1050 kcal · 55g P · omega-3", budget: "€", time: "20 min",
+    ingredients: ["300g potato (wedges)", "1–2 cans sardines (drained)", "10g olive oil", "lemon, cumin, parsley"],
+    steps: [
+      "Cube potato into wedges. Toss with oil + salt + cumin.",
+      "Air-fryer 200°C / 15–18 min, shake once.",
+      "Drain sardines, lay over the hot wedges. Squeeze lemon. Done.",
+    ] },
+  { id: "M4", name: "Air-fryer chicken & potato", macros: "≈1150 kcal · 78g P", budget: "€€", time: "22 min",
+    ingredients: ["250g raw chicken breast", "300g potato (wedges)", "10g olive oil", "cumin, salt, lemon"],
+    steps: [
+      "Season chicken. Air-fryer 180°C / 18–20 min.",
+      "While chicken is going, cube the potato + season.",
+      "After chicken is done, air-fryer the potato at 200°C / 15 min.",
+      "Plate, squeeze lemon. Done.",
+    ] },
 ];
 
+/* Optional small bite if hungry before 8pm. Skip if you're not hungry. */
 export const DINNERS = [
-  { id: "D1", name: "Eggs, cheese & bread", macros: "≈520 kcal · 40g P", budget: "€",
-    ingredients: ["3 whole eggs + 3 egg whites", "30g hard cheese", "50g bread/baguette", "10g olive oil"],
-    steps: ["Boil eggs 8–9 min OR make an omelette with a touch of oil.", "Slice cheese + bread.", "Add any cheap veg you have."] },
-  { id: "D2", name: "Sardines & potato", macros: "≈510 kcal · 30g P · omega-3", budget: "€",
-    ingredients: ["1 can sardines (drained)", "250g raw potato", "lemon, parsley"],
-    steps: ["Boil the potatoes.", "Drain sardines, lay over potato.", "Lemon + parsley."] },
-  { id: "D3", name: "Pasta & tuna (budget)", macros: "≈560 kcal · 45g P", budget: "€",
-    ingredients: ["60g dry pasta", "1 can tuna", "10g olive oil", "cumin, lemon (only if wheat sits well with you)"],
-    steps: ["Boil the pasta until tender, drain.", "Stir through drained tuna + olive oil + lemon + cumin.", "Add a little grated cheese if you like."] },
+  { id: "OPT1", name: "2 boiled eggs + 30g cheese + 1 banana", macros: "≈360 kcal · 20g P", budget: "€", time: "10 min",
+    ingredients: ["2 eggs", "30g hard cheese", "1 banana"],
+    steps: ["Boil the eggs 9 min.", "Slice cheese.", "Eat together with the banana."] },
+  { id: "OPT2", name: "Skip — drink water, fast starts", macros: "0 kcal", budget: "€", time: "0 min",
+    ingredients: ["water", "(maybe a black coffee)"],
+    steps: ["You're not hungry. Don't eat. Hydrate. The fast does the work."] },
 ];
 
 export const SNACK = {
-  id: "S", name: "Whey shake (+oats on workout days)", macros: "≈226–376 kcal · 54–59g P", time: "16:00",
-  ingredients: ["2 scoops whey ISO", "~300ml cold water", "workout days: +40g oats"],
-  steps: ["Shake whey + water in a bottle.", "Workout days: soak 40g oats in 150ml water 5 min (or microwave 90s) — eat as porridge with cinnamon or stir into the shake."] };
+  id: "S", name: "Whey shake — 3 scoops across the day", macros: "≈340 kcal · 81g P",
+  ingredients: ["3 scoops whey ISO total", "water"],
+  steps: ["Split as you like — e.g. 1 scoop morning (in coffee), 1 mid-afternoon, 1 evening.", "The shake is the protein backbone — never skip it."] };
 
-export const DAILY_EXTRAS = "Top-up: 30g hard cheese + 1 small fruit (banana/clementine) ≈ 215 kcal, 8g P.";
+export const DAILY_EXTRAS = "Optional: handful of oats with one of the shakes on workout days.";
 
 export const BUDGET_NOTE =
   "Eat cheap on purpose: eggs, potatoes, rice, pasta, oats and canned fish are your protein-and-energy backbone — all cheap. " +
   "Chicken is the priciest thing here, so it's only ~2 days a week. Your whey covers a big slice of protein and you already own it. " +
   "Buy whatever veg is cheapest and in season (carrots and potatoes are the cheapest). Skip anything on this list you can't afford this week — it still works.";
 
+/* Each item has a qty and a default price PER UNIT (DZD — Algeria).
+   Prices are EDITABLE in the app and saved in settings.prices.
+   The Meals screen multiplies qty × price → weekly cost total. */
+export const CURRENCY = "DZD";
 export const GROCERY = [
-  { item: "Eggs", qty: "30 (2½ dozen)", tag: "cheap protein" },
-  { item: "Canned tuna (in water)", qty: "5 cans" },
-  { item: "Canned sardines", qty: "3 cans" },
-  { item: "Chicken breast", qty: "800 g (only ~2 meals)", tag: "priciest" },
-  { item: "Hard cheese", qty: "200 g" },
-  { item: "Potatoes", qty: "3 kg", tag: "cheap + filling" },
-  { item: "White rice", qty: "1 kg" },
-  { item: "Pasta", qty: "500 g" },
-  { item: "Oats", qty: "500 g" },
-  { item: "Bread / baguette", qty: "buy fresh as needed" },
-  { item: "Carrots", qty: "1 kg", tag: "cheapest veg" },
-  { item: "Zucchini (or any cheap veg)", qty: "3–4" },
-  { item: "Bananas (or cheapest fruit)", qty: "7" },
-  { item: "Olive oil", qty: "1 bottle (lasts weeks)" },
-  { item: "Lemons", qty: "4–5" },
-  { item: "Cumin, paprika, salt, pepper, herbs", qty: "as needed" },
-  { item: "Coffee / plain tea", qty: "as needed" },
+  { id: "rice",     item: "White rice",         qty: 1,   unit: "kg",   price: 150,  tag: "base" },
+  { id: "chicken",  item: "Chicken breast",     qty: 1,   unit: "kg",   price: 700,  tag: "priciest" },
+  { id: "potato",   item: "Potatoes",           qty: 2,   unit: "kg",   price: 70,   tag: "cheap" },
+  { id: "tuna",     item: "Tuna (in water)",    qty: 5,   unit: "cans", price: 130 },
+  { id: "sardines", item: "Sardines",           qty: 3,   unit: "cans", price: 180 },
+  { id: "eggs",     item: "Eggs",               qty: 14,  unit: "eggs", price: 25,   tag: "cheap protein" },
+  { id: "cheese",   item: "Hard cheese",        qty: 0.2, unit: "kg",   price: 1500 },
+  { id: "oil",      item: "Olive oil",          qty: 0.25,unit: "L",    price: 800 },
+  { id: "lemon",    item: "Lemons",             qty: 5,   unit: "units",price: 20 },
+  { id: "carrot",   item: "Carrots",            qty: 1,   unit: "kg",   price: 80 },
+  { id: "banana",   item: "Bananas",            qty: 7,   unit: "units",price: 50 },
+  { id: "spice",    item: "Cumin / salt / pepper", qty: 0, unit: "—",   price: 0, tag: "once" },
 ];
 
 export const SUPPLEMENTS = [
@@ -110,52 +128,54 @@ export const SUPPLEMENTS = [
   { id: "d3k2", name: "Vitamin D3 + K2", dose: "per label", when: "with Meal 1 (fat-soluble)" },
 ];
 
-/* ---------- Training: no equipment required. ---------- */
+/* ---------- Training: BEGINNER scaling for a 113kg untrained start. ----------
+   Each exercise has a `kind`:
+     'reps'         — count reps per set (button/+ counter)
+     'time'         — hold for N seconds (built-in timer)
+     'reps_weight'  — reps + load (filled bottles, backpack)
+   `video` is a YouTube SEARCH url so the link never rots.
+   `target` defines starting sets / reps / seconds. Beat last time = progress. */
 export const TRAINING_NOTE =
-  "NO equipment required. The only 'weight' is a backpack/bag you fill (water bottles, books, rice/flour bags) — " +
-  "start ~5kg, add more to progress. Two filled bottles = light dumbbells. Uses a chair, sturdy table, wall, door + towel. " +
-  "If you have none of these, the bodyweight version still works.";
+  "NO gear needed. Optional load: a backpack/bottles filled with water, books or rice — start LIGHT (2–3 kg). " +
+  "Workouts are short (~20–25 min) and scaled to a 113 kg beginner. Wall push-ups are 100% fine — start there.";
 
 export const OVERLOAD_RULE =
-  "BEAT LAST TIME. Progress in this order: +1–2 reps → add a set → slow the lowering to 3 seconds → harder variation → add weight to the backpack.";
+  "BEAT LAST TIME. Progress order: +1 rep → +5 sec hold → +1 set → harder variation → add a bit of load.";
+
+const yt = (q) => "https://www.youtube.com/results?search_query=" + encodeURIComponent(q + " tutorial proper form");
 
 export const WORKOUTS = {
-  A: { id: "A", title: "Lower — Squat focus", exercises: [
-    { name: "Squat", scheme: "4 × 12–20", how: "Bodyweight → hold a loaded backpack at chest to make it harder." },
-    { name: "Reverse lunge", scheme: "3 × 10 / leg", how: "Bodyweight → hold backpack or bottles." },
-    { name: "Hip hinge / RDL", scheme: "3 × 12–15", how: "Hands on hips → hold backpack/bottles. Push hips back, flat back." },
-    { name: "Glute bridge", scheme: "3 × 15–20", how: "Lie down, drive hips up. Backpack on hips to progress." },
-    { name: "Calf raises", scheme: "3 × 20", how: "On a step edge if available for more range." },
-    { name: "Wall sit (finisher)", scheme: "3 × max hold", how: "Back on wall, thighs parallel to floor, hold." },
-    { name: "Leg raises", scheme: "3 × 15", how: "Lie on back, lift straight legs, lower slow." },
-    { name: "Plank", scheme: "3 × max", how: "Forearms down, straight line, brace." },
+  A: { id: "A", title: "Lower — beginner", duration: "~20 min", exercises: [
+    { name: "Bodyweight squat",   kind: "reps", target: { sets: 3, reps: 8 },   scheme: "3 × 8",     how: "Stand shoulder-width. Sit back like onto a chair. Knees track over toes. Don't need to go deep — quality > depth.", video: yt("bodyweight squat") },
+    { name: "Glute bridge",       kind: "reps", target: { sets: 3, reps: 10 },  scheme: "3 × 10",    how: "On your back, knees bent. Drive hips up squeezing glutes. Pause 1 sec at top.", video: yt("glute bridge") },
+    { name: "Wall sit",           kind: "time", target: { sets: 3, seconds: 20 }, scheme: "3 × 20s", how: "Back flat on wall, thighs parallel to floor (or close). Hold. The timer is built in.", video: yt("wall sit") },
+    { name: "Calf raises",        kind: "reps", target: { sets: 3, reps: 12 },  scheme: "3 × 12",    how: "Stand tall, raise onto toes, slow down.", video: yt("calf raise") },
+    { name: "Dead bug",           kind: "reps", target: { sets: 3, reps: 6 },   scheme: "3 × 6 / side", how: "On back, arms up, knees up 90°. Lower opposite arm + leg slowly. Core stays flat.", video: yt("dead bug core") },
+    { name: "Plank (knees OK)",   kind: "time", target: { sets: 3, seconds: 15 }, scheme: "3 × 15s", how: "Forearms down. Knees OK to start. Straight line from head to whatever's on the floor.", video: yt("plank beginner") },
   ]},
-  B: { id: "B", title: "Upper — Push focus", exercises: [
-    { name: "Push-ups", scheme: "4 × AMRAP", how: "Progression: hands on table/wall → on knees → standard → feet on chair." },
-    { name: "Pike push-ups", scheme: "3 × 8–12", how: "Hips high, head toward floor (shoulders). Elevate feet to progress." },
-    { name: "Overhead press", scheme: "3 × 10–12", how: "Two filled bottles or backpack pressed from shoulders to overhead." },
-    { name: "Chair dips", scheme: "3 × 12", how: "Hands on chair edge, lower body, push up (triceps)." },
-    { name: "Bicep curls", scheme: "3 × 12", how: "Bottles or backpack, curl slow." },
-    { name: "Dead bug", scheme: "3 × 12", how: "On back, opposite arm/leg extend, brace core." },
-    { name: "Side plank", scheme: "3 × max / side", how: "On forearm, hips up, straight line." },
+  B: { id: "B", title: "Upper — push, beginner", duration: "~20 min", exercises: [
+    { name: "Wall push-up",       kind: "reps", target: { sets: 3, reps: 8 },   scheme: "3 × 8",     how: "Stand arm's length from wall. Hands flat. Lower chest to wall, push back. When this gets easy, move to incline push-ups on a table.", video: yt("wall push up beginner") },
+    { name: "Incline push-up",    kind: "reps", target: { sets: 3, reps: 6 },   scheme: "3 × 6",     how: "Hands on a sturdy table or kitchen counter. Body straight. Lower chest, push up. Easier than knee push-ups for big guys.", video: yt("incline push up") },
+    { name: "Chair-supported pike", kind: "reps", target: { sets: 3, reps: 6 }, scheme: "3 × 6",     how: "Hands on chair seat, hips high, lower head toward hands. Shoulders.", video: yt("pike push up beginner") },
+    { name: "Chair dips (shallow)", kind: "reps", target: { sets: 3, reps: 6 }, scheme: "3 × 6",     how: "Hands on chair edge, knees BENT (feet flat). Lower a few inches, push up. Don't go deep — protect shoulders.", video: yt("chair tricep dip beginner") },
+    { name: "Bottle overhead press", kind: "reps_weight", target: { sets: 3, reps: 10, load: 1 }, scheme: "3 × 10", how: "Two filled water bottles at shoulders. Press up overhead. Start light — 0.5–1 L each.", video: yt("overhead press dumbbell beginner") },
+    { name: "Plank (knees OK)",   kind: "time", target: { sets: 3, seconds: 15 }, scheme: "3 × 15s", how: "Same plank as Workout A.", video: yt("plank beginner") },
   ]},
-  C: { id: "C", title: "Lower — Posterior / glute focus", exercises: [
-    { name: "Tempo squat", scheme: "4 × 12", how: "3 seconds down. Bodyweight → backpack." },
-    { name: "Split squat", scheme: "3 × 10 / leg", how: "Rear foot on a chair, drop straight down." },
-    { name: "Single-leg glute bridge", scheme: "3 × 12 / leg", how: "One foot planted, other leg straight, drive hips up." },
-    { name: "Good morning / hip hinge", scheme: "3 × 15", how: "Hands behind head → backpack on shoulders. Hinge at hips." },
-    { name: "Single-leg calf raise", scheme: "3 × 15 / leg", how: "Balance on one foot, raise slow." },
-    { name: "Bicycle crunches", scheme: "3 × 20", how: "Elbow to opposite knee, alternating." },
-    { name: "Hollow hold", scheme: "3 × max", how: "On back, low back pressed down, arms/legs off floor." },
+  C: { id: "C", title: "Lower — variation", duration: "~20 min", exercises: [
+    { name: "Step-up to chair",   kind: "reps", target: { sets: 3, reps: 8 },   scheme: "3 × 8 / leg", how: "Sturdy chair (not a fold-up). Step up driving through the heel. Step down. Alternate.", video: yt("step up exercise") },
+    { name: "Wall sit",           kind: "time", target: { sets: 3, seconds: 30 }, scheme: "3 × 30s", how: "5 sec longer than Workout A.", video: yt("wall sit") },
+    { name: "Reverse lunge",      kind: "reps", target: { sets: 3, reps: 6 },   scheme: "3 × 6 / leg", how: "Step backward into a lunge, knee toward (not on) floor, push back. Hold a wall for balance.", video: yt("reverse lunge beginner") },
+    { name: "Bird dog",           kind: "reps", target: { sets: 3, reps: 8 },   scheme: "3 × 8 / side", how: "On hands and knees. Extend opposite arm + leg, hold 1 sec, return. Slow.", video: yt("bird dog exercise") },
+    { name: "Glute bridge",       kind: "reps", target: { sets: 3, reps: 12 },  scheme: "3 × 12",    how: "Same as A, +2 reps.", video: yt("glute bridge") },
+    { name: "March in place",     kind: "time", target: { sets: 3, seconds: 60 }, scheme: "3 × 60s", how: "Lift knees high, pump arms. Easy cardio finisher.", video: yt("march in place cardio") },
   ]},
-  D: { id: "D", title: "Upper — Pull focus (no bar)", exercises: [
-    { name: "Rows", scheme: "4 × 8–12", how: "Pick what you can set up: (a) lie under a sturdy table, pull chest to edge; (b) towel over the top of a closed latched door, hold both ends, lean back & pull; (c) broom handle across two chairs, row under it." },
-    { name: "Bent-over rows", scheme: "3 × 12", how: "Backpack or two bottles, hinge forward, row to ribs." },
-    { name: "Towel rows (single arm)", scheme: "3 × 12", how: "Door + towel as above, one arm at a time." },
-    { name: "Reverse snow angels", scheme: "3 × 15", how: "Lie face-down, arms sweep from sides to overhead (rear delts/back)." },
-    { name: "Bicep curls", scheme: "3 × 12", how: "Bottles/backpack." },
-    { name: "Plank shoulder taps", scheme: "3 × 20", how: "Plank, tap opposite shoulder without rocking hips." },
-    { name: "Leg raises", scheme: "3 × 15", how: "Lie on back, lift straight legs." },
+  D: { id: "D", title: "Upper — pull + core (no bar)", duration: "~20 min", exercises: [
+    { name: "Towel row (door)",   kind: "reps", target: { sets: 3, reps: 8 },   scheme: "3 × 8",     how: "Towel over the top of a closed, LATCHED door. Hold both ends, lean back, pull chest toward the door.", video: yt("door towel row no bar") },
+    { name: "Bent-over row",      kind: "reps_weight", target: { sets: 3, reps: 10, load: 1 }, scheme: "3 × 10", how: "Two filled bottles or a backpack. Hinge forward (flat back), row to ribs.", video: yt("bent over row dumbbell") },
+    { name: "Bicep curl",         kind: "reps_weight", target: { sets: 3, reps: 10, load: 1 }, scheme: "3 × 10", how: "Bottles or backpack. Slow, controlled.", video: yt("bicep curl dumbbell") },
+    { name: "Reverse snow angel", kind: "reps", target: { sets: 3, reps: 10 },  scheme: "3 × 10",    how: "Lie face-down, sweep arms from sides to overhead, then back. Rear delts/back.", video: yt("reverse snow angel exercise") },
+    { name: "Dead bug",           kind: "reps", target: { sets: 3, reps: 6 },   scheme: "3 × 6 / side", how: "Same as A.", video: yt("dead bug core") },
+    { name: "Plank (knees OK)",   kind: "time", target: { sets: 3, seconds: 20 }, scheme: "3 × 20s", how: "Workout D plank is 5 sec longer.", video: yt("plank beginner") },
   ]},
 };
 
@@ -183,26 +203,25 @@ export const MILESTONES = (() => {
 
 /* ---------- Batch meal prep: cook once, eat all week ---------- */
 export const MEAL_PREP = {
-  intro: "One cooking session (~75 min). Cook everything, portion into containers, and you're done thinking about food for the week.",
+  intro: "One air-fryer + one pot session (~60 min). Cook everything, portion into containers, and you're done thinking about food for the week.",
   // Batch quantities aligned with the weekly grocery list (≈7 days)
   batch: [
-    { item: "Eggs", cook: "Hard-boil ~12 eggs, 9 min. Leave in shell. (Keep the rest raw for fresh scrambles.)", yields: "egg lunches/dinners + snacks", store: "Fridge 5–7 days in shell" },
-    { item: "Potatoes", cook: "Boil ~3 kg cubed potatoes 15–20 min, drain, cool.", yields: "~10 potato servings", store: "Fridge 4 days · freeze extra" },
-    { item: "White rice", cook: "Cook a big batch (~250 g dry → ~750 g cooked).", yields: "~4 rice servings", store: "Fridge ≤3 days OR freeze. Cool fast, reheat until steaming hot" },
-    { item: "Chicken breast", cook: "Season ~800 g (salt, cumin, pepper, lemon). Bake at 200°C ~25–30 min.", yields: "~4 portions of ~150 g cooked", store: "Fridge 3 days · freeze the rest" },
-    { item: "Vegetables", cook: "Chop carrots + zucchini (or whatever's cheap). Toss with olive oil + cumin + salt. Roast at 200°C ~25 min.", yields: "veg for the week", store: "Fridge 4 days" },
-    { item: "Pasta", cook: "Cook fresh per meal (10 min) — it doesn't store as well.", yields: "—", store: "—" },
+    { item: "Chicken breast (air fryer)", cook: "Season ~1 kg chicken (salt, cumin, pepper, lemon). Air-fry at 180°C / 20–25 min (do in 2 batches if needed, flip halfway).", yields: "~5 portions of ~150 g cooked", store: "Fridge 3 days · freeze the rest" },
+    { item: "Potato wedges (air fryer)", cook: "Cube ~2 kg potatoes, toss with oil + salt + cumin. Air-fry at 200°C / 15–18 min per batch, shaking once.", yields: "~6 potato servings", store: "Fridge 4 days" },
+    { item: "White rice", cook: "Cook a big pot (~250 g dry → ~750 g cooked) while the air fryer runs.", yields: "~4 rice servings", store: "Fridge ≤3 days OR freeze. Cool fast, reheat until steaming hot" },
+    { item: "Eggs", cook: "Hard-boil ~8 eggs, 9 min, in the pot before the rice.", yields: "evening snacks for the week", store: "Fridge 5–7 days in shell" },
+    { item: "Carrots & zucchini", cook: "Chop, toss with oil/salt, air-fry 200°C / 10 min (after the chicken).", yields: "veg side for the week", store: "Fridge 4 days" },
     { item: "Tuna / sardines", cook: "No prep — canned. Open on the day.", yields: "—", store: "Pantry" },
   ],
   prepDay: [
-    "Preheat oven to 200°C. Put a big pot of salted water on to boil.",
-    "Chop all the veg, spread on trays with olive oil + cumin + salt → into the oven (~25 min).",
-    "Boil the cubed potatoes in the big pot (15–20 min).",
-    "In a second pot, hard-boil the eggs (9 min), then cool in cold water.",
-    "Cook the rice (rinse, simmer, rest).",
-    "Season all the chicken and bake it (or pan-cook in batches) until no pink inside.",
-    "Let everything cool ~30 min (don't seal hot food — it spoils faster).",
-    "Portion into containers. Label them. Fridge what you'll eat in 3 days; FREEZE the rest.",
+    "Put a pot of salted water on. Heat the air fryer to 180°C.",
+    "Boil the eggs first (9 min). Cool in cold water and set aside.",
+    "Season the chicken. Air-fry at 180°C / 20–25 min (flip halfway). Do in 2 batches if it won't all fit.",
+    "While the chicken cooks: cube the potatoes, toss with oil/salt/cumin.",
+    "Cook the rice in the same pot you boiled the eggs in.",
+    "After the chicken, air-fry the potato wedges at 200°C / 15–18 min.",
+    "Finally air-fry the chopped carrot/zucchini 200°C / 10 min.",
+    "Let everything cool ~20 min, then portion into containers. Label them. Fridge 3 days · freeze the rest.",
   ],
   storage: [
     "Use airtight containers. Fridge max 3–4 days; freeze anything beyond that.",
@@ -233,6 +252,25 @@ export const DEFAULT_REMINDERS = [
   { id: "train",  label: "Workout",         time: "18:00", on: true,  body: "Time to train. Beat last time." },
   { id: "dinner", label: "Dinner",          time: "19:30", on: true,  body: "Meal 2. Last food before the fast." },
   { id: "wind",   label: "Wind down",       time: "21:00", on: false, body: "Stop eating. Water only. Check today's wins." },
+];
+
+/* Big, vibrant hero quotes — shown front and center every time the app
+   opens. Short and punchy so they fit in a giant display font. */
+export const HERO_QUOTES = [
+  { line: "EARN.\nIT.",                vibe: "lime"   },
+  { line: "NO ZERO\nDAYS.",            vibe: "orange" },
+  { line: "OUTWORK\nYESTERDAY.",       vibe: "lime"   },
+  { line: "DISCIPLINE\n>\nMOTIVATION.",vibe: "duo"    },
+  { line: "DON'T BREAK\nTHE CHAIN.",   vibe: "orange" },
+  { line: "BUILT,\nNOT BORN.",         vibe: "lime"   },
+  { line: "SHOW UP.\nALWAYS.",         vibe: "duo"    },
+  { line: "WIN\nTODAY.",               vibe: "lime"   },
+  { line: "QUIET WORK.\nLOUD RESULTS.",vibe: "orange" },
+  { line: "BE\nUNDENIABLE.",           vibe: "duo"    },
+  { line: "PAIN IS\nTEMPORARY.",       vibe: "orange" },
+  { line: "STOP MAKING\nEXCUSES.",     vibe: "lime"   },
+  { line: "FAT BURNS\nIN SILENCE.",    vibe: "duo"    },
+  { line: "FUTURE YOU\nIS WATCHING.",  vibe: "lime"   },
 ];
 
 export const DAILY_LINES = [

@@ -33,7 +33,10 @@
       "Bash(rm -f test/_shots.mjs test/*.png)",
       "Bash(printf \"node_modules/\\\\npackage-lock.json\\\\ntest/*.png\\\\ntest/_*.mjs\\\\n\")",
       "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Ignore test artifacts; verified UI visually *)",
-      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Add prep mode, budget meals, countdowns, ranks, voice notes, reminders *)"
+      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Add prep mode, budget meals, countdowns, ranks, voice notes, reminders *)",
+      "Bash(node test/_shot.mjs)",
+      "Bash(rm -f test/_shot.mjs test/*.png)",
+      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Major redesign: hero quotes, OMAD air-fryer plan, beginner workouts, price tracking, security *)"
     ]
   }
 }

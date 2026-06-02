@@ -43,14 +43,13 @@ await typePin("1234");           // confirm
 await page.waitForSelector("#app:not([hidden])", { timeout: 5000 });
 console.log("  ok - PIN create + enter app");
 
-// --- Today renders ---
-await page.waitForSelector(".page-head h1");
-const todayTitle = await page.textContent(".page-head h1");
-if (!/TODAY/i.test(todayTitle)) throw new Error("Today screen not shown: " + todayTitle);
-console.log("  ok - Today screen");
+// --- Today renders (hero quote + sticky topbar) ---
+await page.waitForSelector(".hero-quote .hq-text");
+await page.waitForSelector(".topbar .tb-streak");
+console.log("  ok - Today renders (hero + topbar)");
 
 // --- toggle a meal check ---
-await page.click('.check:has-text("Meal 1")');
+await page.click('.check:has-text("Main meal")');
 console.log("  ok - check toggled");
 
 // --- visit each screen via hash ---

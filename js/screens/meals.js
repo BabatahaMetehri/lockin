@@ -2,10 +2,10 @@
    meals.js — full plan, step-by-step recipes, grocery checklist.
    ============================================================ */
 import { el, card, pageHead, collapse } from "../ui.js";
-import { toggleGrocery, getState } from "../store.js";
+import { toggleGrocery, getState, getSettings, setSettings } from "../store.js";
 import {
   TARGETS, EATING_WINDOW, LUNCHES, DINNERS, SNACK, DAILY_EXTRAS,
-  RECIPE_BASICS, GROCERY, SEASONING_RULES, EXCLUDED_FOODS, MEAL_PREP, BUDGET_NOTE,
+  RECIPE_BASICS, GROCERY, SEASONING_RULES, EXCLUDED_FOODS, MEAL_PREP, BUDGET_NOTE, CURRENCY,
 } from "../data.js";
 
 export function renderMeals(root) {
@@ -69,19 +69,50 @@ export function renderMeals(root) {
   EXCLUDED_FOODS.forEach((f) => exCard.appendChild(el("div.grocery-item", {}, [el("span", { text: f }), el("span.q", { text: "✕" })])));
   root.appendChild(exCard);
 
-  // grocery checklist
-  const grocCard = card('🛒 <span class="tag">Weekly grocery list</span>', []);
+  // ---- weekly cost tracker: editable qty + price → live total ----
+  const userPrices = getSettings().prices || {};
+  const userQtys = getSettings().qtys || {};
   const got = getState().grocery;
+  const totalEl = el("span.cost-bar", { text: "0 " + CURRENCY });
+  const grocCard = card('🛒 <span class="tag">Weekly cost</span>', []);
+  grocCard.appendChild(el("div.row-between", {}, [totalEl, el("small.note", { text: "tap row to cross off · prices save" })]));
+  grocCard.appendChild(el("div.gr-row", { style: "border-bottom:2px solid var(--line);font-weight:700;color:var(--muted);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase" }, [
+    el("span", { text: "Item" }), el("span", { text: "Qty" }), el("span", { text: "@" }), el("span", { style: "text-align:right", text: "Total" }),
+  ]));
+
+  function recalc() {
+    let total = 0;
+    GROCERY.forEach((g) => {
+      const qty = (userQtys[g.id] != null ? userQtys[g.id] : g.qty);
+      const price = (userPrices[g.id] != null ? userPrices[g.id] : g.price);
+      total += (qty * price) || 0;
+    });
+    totalEl.textContent = Math.round(total).toLocaleString() + " " + CURRENCY;
+  }
+
   GROCERY.forEach((g) => {
-    const row = el("div.grocery-item" + (got[g.item] ? ".got" : ""), {}, [
-      el("span", { html: g.item + (g.tag ? ` <span class="pill mut" style="font-size:.6rem">${g.tag}</span>` : "") }),
-      el("span.q", { text: g.qty }),
-    ]);
-    row.style.cursor = "pointer";
-    row.addEventListener("click", () => { const on = toggleGrocery(g.item); row.classList.toggle("got", on); });
+    const qty = userQtys[g.id] != null ? userQtys[g.id] : g.qty;
+    const price = userPrices[g.id] != null ? userPrices[g.id] : g.price;
+    const lineTotal = el("span.total", { text: Math.round(qty * price).toLocaleString() });
+    const itemEl = el("span", { html: `${g.item}<br><small style="color:var(--muted)">${g.unit}${g.tag ? " · " + g.tag : ""}</small>` });
+    const qtyInp = el("input.input", { type: "number", inputmode: "decimal", step: "0.1", value: qty });
+    const priceInp = el("input.input", { type: "number", inputmode: "numeric", value: price });
+    const update = () => {
+      const q = parseFloat(qtyInp.value || "0"), p = parseFloat(priceInp.value || "0");
+      userQtys[g.id] = q; userPrices[g.id] = p;
+      setSettings({ qtys: userQtys, prices: userPrices });
+      lineTotal.textContent = Math.round(q * p).toLocaleString();
+      recalc();
+    };
+    qtyInp.addEventListener("change", update);
+    priceInp.addEventListener("change", update);
+    const row = el("div.gr-row" + (got[g.id] ? " got" : ""), {}, [itemEl, qtyInp, priceInp, lineTotal]);
+    itemEl.style.cursor = "pointer";
+    itemEl.addEventListener("click", () => { const on = toggleGrocery(g.id); row.classList.toggle("got", on); });
     grocCard.appendChild(row);
   });
-  grocCard.appendChild(el("p.note", { text: "Tap an item to cross it off while shopping.", style: "margin-top:10px" }));
+  recalc();
+  grocCard.appendChild(el("p.note", { text: `Prices in ${CURRENCY}. Edit them once and your total updates live each week.`, style: "margin-top:12px" }));
   root.appendChild(grocCard);
 }
 

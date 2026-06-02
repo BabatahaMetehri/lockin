@@ -49,6 +49,53 @@ export function renderSettings(root, { refresh }) {
   schCard.appendChild(el("button.btn", { text: "Save schedule", onclick: () => { setSettings({ schedule: sched }); toast("Schedule saved"); refresh(); } }));
   root.appendChild(schCard);
 
+  // ---- auto-lock ----
+  const lockCard = card('🔐 <span class="tag">Auto-lock</span>', []);
+  const lockSel = el("select.input", {}, [
+    ["1","After 1 min"],["3","After 3 min"],["5","After 5 min"],["15","After 15 min"],["0","Never (not recommended)"],
+  ].map(([v, t]) => el("option", { value: v, text: t, ...((s.autoLockMinutes ?? 5).toString() === v ? { selected: true } : {}) })));
+  lockSel.addEventListener("change", () => { setSettings({ autoLockMinutes: parseInt(lockSel.value, 10) }); toast("Auto-lock saved — applies on next unlock"); });
+  lockCard.appendChild(lockSel);
+  lockCard.appendChild(el("p.note", { text: "App re-locks behind your PIN when idle. Touch/scroll resets the timer.", style: "margin-top:8px" }));
+  root.appendChild(lockCard);
+
+  // ---- custom exercises ----
+  const cxCard = card('🧩 <span class="tag">Custom exercises</span>', []);
+  const customs = (s.customExercises || []).slice();
+  function reCx() {
+    [...cxCard.querySelectorAll(".cx-row")].forEach((n) => n.remove());
+    customs.forEach((c, i) => {
+      const r = el("div.gr-row cx-row", { style: "grid-template-columns:1fr 1fr 1fr 60px" }, [
+        el("span", { html: `<b>${c.name}</b><br><small style="color:var(--muted)">Workout ${c.workoutId} · ${c.kind} · ${c.scheme}</small>` }),
+        el("span", { text: c.kind, style: "font-size:.78rem;color:var(--muted)" }),
+        el("span", { text: c.scheme, style: "font-size:.78rem;color:var(--muted)" }),
+        el("button.btn warn sm", { text: "✕", onclick: () => { customs.splice(i, 1); setSettings({ customExercises: customs }); reCx(); } }),
+      ]);
+      cxCard.insertBefore(r, addBtn);
+    });
+  }
+  const nameInp = el("input.input", { placeholder: "Exercise name" });
+  const woSel = el("select.input", {}, ["A","B","C","D"].map((id) => el("option", { value: id, text: "Workout " + id })));
+  const kindSel = el("select.input", {}, [["reps","Reps"],["time","Time (seconds)"],["reps_weight","Reps + weight"]].map(([v,t]) => el("option", { value: v, text: t })));
+  const schemeInp = el("input.input", { placeholder: "e.g. 3 × 10" });
+  const howInp = el("input.input", { placeholder: "Short how-to (optional)" });
+  const addBtn = el("button.btn", { text: "+ Add custom exercise", onclick: () => {
+    if (!nameInp.value.trim()) return;
+    customs.push({ workoutId: woSel.value, name: nameInp.value.trim(), kind: kindSel.value, scheme: schemeInp.value || "3 × 10", how: howInp.value, target: { sets: 3, reps: 10 }, video: "https://www.youtube.com/results?search_query=" + encodeURIComponent(nameInp.value + " form") });
+    setSettings({ customExercises: customs });
+    nameInp.value = ""; schemeInp.value = ""; howInp.value = "";
+    reCx(); toast("Added");
+  }});
+  cxCard.appendChild(addBtn);
+  cxCard.appendChild(el("hr.divider"));
+  cxCard.appendChild(el("label.field", {}, [el("span", { text: "Name" }), nameInp]));
+  cxCard.appendChild(el("label.field", {}, [el("span", { text: "Workout" }), woSel]));
+  cxCard.appendChild(el("label.field", {}, [el("span", { text: "Type" }), kindSel]));
+  cxCard.appendChild(el("label.field", {}, [el("span", { text: "Scheme (display)" }), schemeInp]));
+  cxCard.appendChild(el("label.field", {}, [el("span", { text: "How (optional)" }), howInp]));
+  reCx();
+  root.appendChild(cxCard);
+
   // ---- reminders ----
   const remCard = card('🔔 <span class="tag">Daily reminders</span>', []);
   const perm = permission();

@@ -5,6 +5,7 @@ import { el, card, pageHead, statBox } from "../ui.js";
 import { getState, getSettings, setSettings, latestWeight } from "../store.js";
 import { currentStreak, totalLost, lockedInDays, rankFor, weeklyRate, etaToGoal } from "../calc.js";
 import { MILESTONES, DAILY_LINES, RANKS } from "../data.js";
+import { buildMonth } from "../calendar.js";
 
 export function renderMotivation(root) {
   const s = getSettings();
@@ -38,6 +39,20 @@ export function renderMotivation(root) {
   RANKS.forEach((r) => ladder.appendChild(el("span.pill " + (days >= r.min ? "lime" : "mut"), { html: `${r.icon} ${r.title}`, style: "font-size:.62rem" })));
   rankCard.appendChild(ladder);
   root.appendChild(rankCard);
+
+  // ---- monthly streak calendar ----
+  const now = new Date();
+  const calCard = card('🗓️ <span class="tag">This month</span>', []);
+  const { weeks, monthLabel } = buildMonth(now.getFullYear(), now.getMonth(), state.dayLogs, now, s.startDate);
+  calCard.appendChild(el("p.kicker", { text: monthLabel, style: "margin-bottom:8px" }));
+  const calGrid = el("div.cal");
+  ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].forEach((h) => calGrid.appendChild(el("div.h", { text: h })));
+  weeks.forEach((wk) => wk.forEach((c) => {
+    calGrid.appendChild(el("div.d " + c.status, { text: c.day != null ? String(c.day) : "" }));
+  }));
+  calCard.appendChild(calGrid);
+  calCard.appendChild(el("p.note", { html: '<span class="pill lime" style="font-size:.6rem">FULL</span> day won · <span class="pill mut" style="font-size:.6rem">DIM</span> any activity · <span class="pill orange" style="font-size:.6rem">RED</span> missed', style: "margin-top:10px" }));
+  root.appendChild(calCard);
 
   // goal ETA
   const rate = weeklyRate(state.weights);

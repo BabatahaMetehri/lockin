@@ -229,3 +229,128 @@ label.field span{ display:block; font-size:.8rem; color:var(--muted); margin-bot
 .list-reset{ list-style:none; padding:0; margin:0; }
 .row-between{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
 small.note{ color:var(--muted-2); font-size:.78rem; }
+
+/* ============================================================
+   PERSISTENT TOP BAR — streak + rank visible on every screen
+   ============================================================ */
+.topbar{
+  position:sticky; top:0; left:0; right:0; z-index:15;
+  display:flex; align-items:center; gap:12px; padding:10px 14px;
+  background:linear-gradient(180deg, rgba(10,11,13,.96), rgba(10,11,13,.85));
+  backdrop-filter:blur(10px); border-bottom:1px solid var(--line);
+}
+.topbar .tb-streak{ display:flex; align-items:center; gap:6px; font-family:var(--ff-display); font-size:1.4rem; color:var(--orange); }
+.topbar .tb-streak .pulse{ animation:flame 1.6s ease-in-out infinite; }
+@keyframes flame{ 0%,100%{transform:scale(1) rotate(-2deg); filter:drop-shadow(0 0 4px rgba(255,91,53,.5))} 50%{transform:scale(1.18) rotate(3deg); filter:drop-shadow(0 0 12px rgba(255,91,53,.9))} }
+.topbar .tb-rank{ display:flex; align-items:center; gap:6px; font-weight:700; letter-spacing:.04em; color:var(--lime); font-size:.78rem; text-transform:uppercase; }
+.topbar .tb-spacer{ flex:1; }
+.topbar .tb-day{ font-family:var(--ff-display); color:var(--muted); letter-spacing:.05em; font-size:.95rem; }
+
+/* ============================================================
+   HERO QUOTE — big vibrant motivation panel on Today
+   ============================================================ */
+.hero-quote{
+  position:relative; overflow:hidden; border-radius:var(--r-lg);
+  padding:34px 22px; margin-bottom:18px; min-height:230px;
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  border:1px solid var(--line); box-shadow:var(--shadow);
+  animation:heroIn .6s cubic-bezier(.2,.8,.2,1); cursor:pointer;
+}
+.hero-quote::before{
+  content:""; position:absolute; inset:-2px; z-index:0;
+  background:linear-gradient(135deg, rgba(255,91,53,.75), rgba(198,241,53,.75)), #0a0b0d;
+  animation:heroShift 14s linear infinite;
+}
+.hero-quote.lime::before{ background:radial-gradient(circle at 30% 40%, rgba(198,241,53,.95), transparent 60%), radial-gradient(circle at 75% 70%, rgba(155,192,38,.7), transparent 60%), #0a0b0d; }
+.hero-quote.orange::before{ background:radial-gradient(circle at 30% 40%, rgba(255,91,53,.95), transparent 60%), radial-gradient(circle at 75% 70%, rgba(200,66,31,.7), transparent 60%), #0a0b0d; }
+.hero-quote.duo::before{ background:linear-gradient(135deg, rgba(255,91,53,.85), rgba(198,241,53,.85)), #0a0b0d; }
+.hero-quote::after{
+  content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+  mix-blend-mode:overlay; opacity:.55;
+}
+.hero-quote .hq-text{
+  position:relative; z-index:1;
+  font-family:var(--ff-display); font-size:clamp(2.4rem, 9vw, 4.6rem);
+  letter-spacing:.01em; line-height:.9; color:#0a0b0d; white-space:pre-line;
+  text-shadow:0 2px 18px rgba(0,0,0,.18);
+}
+.hero-quote .hq-tap{ position:absolute; right:12px; bottom:10px; z-index:1;
+  font-size:.6rem; letter-spacing:.18em; color:rgba(10,11,13,.65); text-transform:uppercase; }
+@keyframes heroShift{ 0%{transform:translate(0,0)} 50%{transform:translate(20px,-10px)} 100%{transform:translate(0,0)} }
+@keyframes heroIn{ from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)} }
+
+/* ============================================================
+   BIGGER TOUCH TARGETS — easier to tap, harder to misclick
+   ============================================================ */
+.btn.big{ padding:18px 22px; font-size:1.05rem; border-radius:var(--r-lg); }
+.btn.huge{ padding:24px; font-size:1.2rem; border-radius:var(--r-lg); }
+.tile-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; }
+.tile{
+  border:1px solid var(--line); border-radius:var(--r-lg);
+  background:linear-gradient(180deg,var(--surface),var(--bg-2));
+  padding:18px 14px; text-align:center; cursor:pointer; transition:.15s;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  min-height:108px; color:inherit;
+}
+.tile:active{ transform:scale(.97); }
+.tile.lime{ border-color:rgba(198,241,53,.45); box-shadow:0 0 0 1px rgba(198,241,53,.15); }
+.tile .ico{ font-size:1.9rem; line-height:1; }
+.tile .lbl{ font-weight:700; font-size:.85rem; letter-spacing:.02em; }
+.tile .sub{ font-size:.7rem; color:var(--muted); }
+@media (min-width:600px){ .tile-grid{ grid-template-columns:repeat(4, 1fr); } }
+
+/* ============================================================
+   EXERCISE LOGGING — type-aware UI
+   ============================================================ */
+.ex-card{ border:1px solid var(--line); border-radius:var(--r-lg); background:linear-gradient(180deg,var(--surface),var(--bg-2)); padding:16px; margin-bottom:14px; box-shadow:var(--shadow); }
+.ex-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.ex-name{ font-size:1.05rem; font-weight:800; }
+.ex-scheme{ font-family:var(--ff-display); color:var(--lime); font-size:1.5rem; line-height:1; }
+.ex-how{ color:var(--muted); font-size:.85rem; margin:8px 0 10px; }
+.ex-video{ display:inline-flex; align-items:center; gap:6px; color:var(--orange); font-weight:700; font-size:.78rem; text-decoration:none; padding:6px 10px; border:1px solid rgba(255,91,53,.4); border-radius:99px; }
+.ex-video:hover{ background:rgba(255,91,53,.1); }
+.ex-prev{ color:var(--orange); font-size:.82rem; margin:6px 0 10px; font-weight:700; }
+.rep-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0; border-top:1px solid var(--line); }
+.rep-row .rn{ font-family:var(--ff-display); color:var(--muted); width:38px; font-size:1.5rem; }
+.rep-row .rp{ display:flex; align-items:center; gap:10px; }
+.rep-row .rp button{ width:46px; height:46px; border-radius:14px; border:1px solid var(--line); background:var(--bg); color:var(--text); font-size:1.4rem; font-weight:800; }
+.rep-row .rp button.plus{ background:var(--lime); color:#0a0b0d; border-color:var(--lime); }
+.rep-row .rp .v{ font-family:var(--ff-display); font-size:2rem; min-width:54px; text-align:center; color:var(--lime); }
+.rep-row .target{ font-size:.72rem; color:var(--muted-2); white-space:nowrap; }
+.timer-row{ display:flex; align-items:center; gap:12px; padding:14px 0; border-top:1px solid var(--line); }
+.timer-row .rn{ font-family:var(--ff-display); color:var(--muted); width:38px; font-size:1.5rem; }
+.timer-row .tdisp{ font-family:var(--ff-display); font-size:2.4rem; color:var(--lime); flex:1; text-align:center; transition:color .2s; }
+.timer-row .tdisp.urgent{ color:var(--orange); }
+.timer-row button{ padding:14px 18px; border-radius:14px; font-weight:800; border:0; font-size:.9rem; }
+.timer-row .start{ background:var(--lime); color:#0a0b0d; }
+.timer-row .stop{ background:var(--orange); color:#0a0b0d; }
+.rw-row{ display:flex; align-items:center; gap:8px; padding:10px 0; border-top:1px solid var(--line); }
+.rw-row .rn{ font-family:var(--ff-display); color:var(--muted); width:34px; font-size:1.3rem; }
+.rw-row input{ width:64px; padding:10px; text-align:center; }
+
+/* ============================================================
+   CALENDAR — streak grid
+   ============================================================ */
+.cal{ display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
+.cal .h{ text-align:center; font-size:.62rem; letter-spacing:.1em; color:var(--muted); text-transform:uppercase; padding:4px 0; }
+.cal .d{ aspect-ratio:1; border-radius:8px; border:1px solid var(--line); background:var(--bg-2); display:flex; align-items:center; justify-content:center; font-size:.75rem; color:var(--muted); position:relative; }
+.cal .d.future{ opacity:.35; }
+.cal .d.today{ box-shadow:0 0 0 2px var(--lime) inset; color:var(--lime); font-weight:800; }
+.cal .d.full{ background:var(--lime); color:#0a0b0d; border-color:var(--lime); font-weight:800; }
+.cal .d.partial{ background:rgba(198,241,53,.18); color:var(--lime); border-color:rgba(198,241,53,.4); }
+.cal .d.missed{ background:rgba(255,91,53,.08); border-color:rgba(255,91,53,.25); color:var(--orange); }
+.cal .d.outside{ visibility:hidden; }
+
+/* ============================================================
+   PRICE / GROCERY editor
+   ============================================================ */
+.gr-row{ display:grid; grid-template-columns:1fr 76px 56px 80px; gap:6px; align-items:center; padding:8px 0; border-bottom:1px solid var(--line); font-size:.85rem; }
+.gr-row input{ font-size:.85rem; padding:8px; }
+.gr-row .total{ font-weight:800; color:var(--lime); text-align:right; }
+.cost-bar{ font-family:var(--ff-display); font-size:2.4rem; color:var(--lime); }
+
+/* page transitions */
+.screen > *{ animation:fadeUp .35s cubic-bezier(.2,.8,.2,1); }
+@keyframes fadeUp{ from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)} }
+.lock-attempts{ color:var(--orange); font-size:.78rem; margin-top:8px; font-weight:700; }

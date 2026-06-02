@@ -8,6 +8,9 @@ import { renderWorkouts } from "./screens/workouts.js";
 import { renderMedia } from "./screens/media.js";
 import { renderMotivation } from "./screens/motivation.js";
 import { renderSettings } from "./screens/settings.js";
+import { getState, getSettings } from "./store.js";
+import { currentStreak, lockedInDays, rankFor, daysSince } from "./calc.js";
+import { RANKS } from "./data.js";
 
 const ICONS = {
   today: '<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
@@ -81,8 +84,26 @@ function render(key) {
   setActive(key);
   const el = screenEl();
   el.innerHTML = "";
+  mountTopBar(el);
   route.render(el, { go, refresh: () => render(key) });
   el.scrollTop = 0; window.scrollTo(0, 0);
+}
+
+/** Always-visible streak + rank + day counter at the top of every screen. */
+function mountTopBar(host) {
+  const s = getSettings();
+  const state = getState();
+  const streak = currentStreak(state.dayLogs, new Date());
+  const rank = rankFor(RANKS, lockedInDays(state.dayLogs));
+  const day = daysSince(s.startDate, new Date()) + 1;
+  const bar = document.createElement("div");
+  bar.className = "topbar";
+  bar.innerHTML =
+    `<span class="tb-streak"><span class="pulse">🔥</span>${streak}</span>` +
+    `<span class="tb-rank">${rank.current.icon} ${rank.current.title}</span>` +
+    `<span class="tb-spacer"></span>` +
+    `<span class="tb-day">DAY ${day}</span>`;
+  host.appendChild(bar);
 }
 
 function current() {
