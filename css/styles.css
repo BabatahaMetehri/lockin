@@ -377,3 +377,52 @@ small.note{ color:var(--muted-2); font-size:.78rem; }
 .ac-row .ac-mac{ font-size:.75rem; color:var(--muted); margin-top:2px; }
 .ac-adder{ margin-top:8px; padding:14px; background:var(--surface);
   border:1px solid rgba(198,241,53,.4); border-radius:var(--r); animation:fadeUp .2s ease; }
+
+/* ============================================================
+   BIG CALENDAR — bird's-eye view (Calendar screen)
+   ============================================================ */
+.bigcal{ display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-bottom:14px; }
+.bigcal-h{ text-align:center; font-size:.7rem; letter-spacing:.1em; color:var(--muted); text-transform:uppercase; padding:6px 0; }
+.bigcal-d{
+  position:relative; min-height:88px; padding:6px 6px 4px;
+  background:var(--bg-2); border:1px solid var(--line); border-radius:10px;
+  color:var(--muted); cursor:pointer; transition:.14s; text-align:left; font-family:inherit;
+  display:block;
+}
+.bigcal-d:hover{ transform:translateY(-1px); border-color:var(--lime); }
+.bigcal-d:active{ transform:scale(.98); }
+.bigcal-d.outside{ visibility:hidden; }
+.bigcal-d.future{ opacity:.4; cursor:default; }
+.bigcal-d.future:hover{ transform:none; border-color:var(--line); }
+.bigcal-d.today{ box-shadow:0 0 0 2px var(--lime) inset; color:var(--lime); }
+.bigcal-d.full{ background:var(--lime); color:#0a0b0d; border-color:var(--lime); }
+.bigcal-d.partial{ background:rgba(198,241,53,.18); color:var(--lime); border-color:rgba(198,241,53,.4); }
+.bigcal-d.missed{ background:rgba(255,91,53,.08); border-color:rgba(255,91,53,.25); color:var(--orange); }
+.bigcal-d.dietbreak{ background:linear-gradient(135deg, rgba(255,91,53,.22), var(--bg-2)); border-color:rgba(255,91,53,.5); }
+.bigcal-d.refeed.full{ background:linear-gradient(135deg, var(--lime) 60%, var(--orange)); }
+.bigcal-num{ font-family:var(--ff-display); font-size:1.2rem; line-height:1; color:inherit; }
+.bigcal-pill{ position:absolute; top:6px; right:6px; background:rgba(255,255,255,.08); border:1px solid var(--line);
+  border-radius:5px; padding:2px 6px; font-weight:800; font-size:.66rem; color:var(--lime); font-family:var(--ff-display); letter-spacing:.05em; }
+.bigcal-pill.done{ background:var(--lime); color:#0a0b0d; border-color:var(--lime); }
+.bigcal-pill.walk{ color:var(--orange); border-color:rgba(255,91,53,.4); }
+.bigcal-pill.rest{ color:var(--muted); }
+.bigcal-d.full .bigcal-pill{ background:rgba(10,11,13,.18); color:#0a0b0d; border-color:rgba(10,11,13,.25); }
+.bigcal-tags{ position:absolute; bottom:18px; left:6px; display:flex; gap:3px; font-size:.78rem; line-height:1; }
+.bigcal-events{ position:absolute; bottom:4px; left:6px; right:6px; display:flex; gap:4px; font-size:.72rem; line-height:1; flex-wrap:wrap; }
+
+@media (max-width:600px){
+  .bigcal{ gap:3px; }
+  .bigcal-d{ min-height:60px; padding:3px 3px 2px; border-radius:7px; }
+  .bigcal-num{ font-size:.92rem; }
+  .bigcal-pill{ font-size:.56rem; padding:1px 4px; top:3px; right:3px; border-radius:4px; }
+  .bigcal-events{ font-size:.6rem; bottom:2px; left:3px; right:3px; gap:2px; }
+  .bigcal-tags{ display:none; } /* hide tags on mobile, refeed/dietbreak show as cell bg */
+}
+@media (min-width:900px){
+  .bigcal-d{ min-height:104px; }
+  .bigcal-num{ font-size:1.4rem; }
+}
+
+.lg{ display:flex; flex-wrap:wrap; gap:8px 14px; font-size:.74rem; color:var(--muted); }
+.lg-item{ display:inline-flex; align-items:center; gap:6px; }
+.lg-sw{ display:inline-flex; align-items:center; }

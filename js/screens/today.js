@@ -75,7 +75,7 @@ export function renderToday(root, { go, refresh }) {
     tile("⚖️", "Weight",  "log today", () => go("weight")),
     tile("📸", "Photo",   "progress shot", () => go("media")),
     tile("🎙️", "Voice",   "record note", () => go("media")),
-    tile("✍️", "Note",    "how do I feel", () => document.getElementById("notes-jump")?.scrollIntoView({ behavior: "smooth" })),
+    tile("📅", "Calendar","bird's-eye view", () => go("calendar")),
   ]));
   root.appendChild(quick);
 

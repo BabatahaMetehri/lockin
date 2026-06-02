@@ -58,7 +58,7 @@ await page.click('.check:has-text("Main meal")');
 console.log("  ok - check toggled");
 
 // --- visit each screen via hash ---
-for (const route of ["weight", "meals", "workouts", "media", "motivation", "settings", "today"]) {
+for (const route of ["weight", "meals", "workouts", "media", "motivation", "calendar", "settings", "today"]) {
   await page.evaluate((r) => { location.hash = r; }, route);
   await page.waitForTimeout(200);
   await page.waitForSelector("#screen .page-head, #screen .card", { timeout: 4000 });

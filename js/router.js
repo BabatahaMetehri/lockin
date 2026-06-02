@@ -8,6 +8,7 @@ import { renderWorkouts } from "./screens/workouts.js";
 import { renderMedia } from "./screens/media.js";
 import { renderMotivation } from "./screens/motivation.js";
 import { renderSettings } from "./screens/settings.js";
+import { renderCalendar } from "./screens/calendar.js";
 import { getState, getSettings } from "./store.js";
 import { currentStreak, lockedInDays, rankFor, daysSince } from "./calc.js";
 import { RANKS } from "./data.js";
@@ -19,11 +20,13 @@ const ICONS = {
   workouts: '<path d="M4 7v10M20 7v10M7 9v6M17 9v6"/><path d="M7 12h10"/>',
   media: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M21 17l-5-5-4 4"/>',
   motivation: '<path d="M12 3l2.5 6 6 .5-4.5 4 1.4 6L12 16l-5.4 3.5L8 13.5 3.5 9.5l6-.5z"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/>',
   more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
 };
 
 const ROUTES = {
   today: { label: "Today", icon: "today", render: renderToday },
+  calendar: { label: "Calendar", icon: "calendar", render: renderCalendar },
   weight: { label: "Weight", icon: "weight", render: renderWeight },
   meals: { label: "Meals", icon: "meals", render: renderMeals },
   workouts: { label: "Train", icon: "workouts", render: renderWorkouts },
@@ -32,8 +35,8 @@ const ROUTES = {
   settings: { label: "Settings", icon: "more", render: renderSettings },
 };
 
-const BOTTOM = ["today", "weight", "meals", "workouts", "more"];
-const SIDE = ["today", "weight", "meals", "workouts", "media", "motivation", "settings"];
+const BOTTOM = ["today", "calendar", "meals", "workouts", "more"];
+const SIDE = ["today", "calendar", "weight", "meals", "workouts", "media", "motivation", "settings"];
 
 const screenEl = () => document.getElementById("screen");
 
