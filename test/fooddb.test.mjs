@@ -7,9 +7,23 @@ const t = (name, fn) => { fn(); pass++; console.log("  ok -", name); };
 console.log("fooddb.test.mjs");
 
 t("DB has entries and shape is right", () => {
-  assert.ok(FOOD_DB.length >= 40, `only ${FOOD_DB.length} foods`);
+  assert.ok(FOOD_DB.length >= 200, `only ${FOOD_DB.length} foods`);
   for (const f of FOOD_DB) {
     assert.ok(f.id && f.name && typeof f.kcal === "number" && typeof f.protein === "number", "bad food: " + JSON.stringify(f));
+  }
+});
+
+t("no duplicate ids", () => {
+  const seen = new Set();
+  for (const f of FOOD_DB) { assert.ok(!seen.has(f.id), "duplicate id: " + f.id); seen.add(f.id); }
+});
+
+t("all the expected categories are searchable", () => {
+  const must = ["peach", "pear", "mango", "kiwi", "chocolate", "snickers", "pizza",
+    "burger", "soup", "lentil", "pho", "biryani", "naan", "yogurt", "pancake",
+    "popcorn", "honey", "wine", "ketchup", "bacon", "bourek", "merguez", "shawarma"];
+  for (const q of must) {
+    assert.ok(searchLocal(q).length > 0, "no match for: " + q);
   }
 });
 
