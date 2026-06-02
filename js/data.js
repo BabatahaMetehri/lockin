@@ -256,6 +256,24 @@ export const DEFAULT_REMINDERS = [
 
 /* Big, vibrant hero quotes — shown front and center every time the app
    opens. Short and punchy so they fit in a giant display font. */
+/* ---------- Refeed (planned higher-carb day) ----------
+   Aggressive deficits stall and burn you out. ONE planned higher-carb day
+   per week keeps fat loss going and hormones happy. NOT a free-for-all. */
+export const REFEED = {
+  intro: "Today is your planned refeed. The deficit pauses for ONE day so the next 6 days work better. Eat the same clean foods — just MORE carbs.",
+  rules: [
+    "Hit your normal 180 g protein (don't drop it).",
+    "Add ~50% more rice / potato / oats — fill the tank.",
+    "Keep fats moderate (no fried, no junk).",
+    "No alcohol, no sweets, no off-plan eating — just bigger portions of your usual meals.",
+    "Calories rise to roughly maintenance (~2,800–3,000 kcal). That's the point. Do NOT feel guilty.",
+    "Tomorrow you go straight back to 1,800 kcal. The fast resumes. No 'cheat week.'",
+  ],
+  example:
+    "Example refeed day: Air-fryer chicken (250g) + 180g dry rice + 300g potato + olive oil " +
+    "+ 3 scoops whey + 2 boiled eggs + a banana. Same foods, bigger portions.",
+};
+
 export const HERO_QUOTES = [
   { line: "EARN.\nIT.",                vibe: "lime"   },
   { line: "NO ZERO\nDAYS.",            vibe: "orange" },

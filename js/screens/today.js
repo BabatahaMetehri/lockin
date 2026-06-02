@@ -13,7 +13,7 @@ import { searchFood } from "../foodapi.js";
 import { addCustomMeal, deleteCustomMeal } from "../store.js";
 import {
   WORKOUTS, WEEK_SCHEDULE, LUNCHES, DINNERS, SNACK, SUPPLEMENTS,
-  EATING_WINDOW, DAILY_EXTRAS, TARGETS, WARMUP,
+  EATING_WINDOW, DAILY_EXTRAS, TARGETS, WARMUP, REFEED,
 } from "../data.js";
 
 export function renderToday(root, { go, refresh }) {
@@ -115,6 +115,18 @@ export function renderToday(root, { go, refresh }) {
     trainCard.appendChild(el("button.btn huge", { text: log.workoutDone ? "✅ Done — open again" : "▶ Start workout", onclick: () => { location.hash = "workouts"; setTimeout(() => window.dispatchEvent(new CustomEvent("open-workout", { detail: w.id })), 50); } }));
   }
   root.appendChild(trainCard);
+
+  // ---- refeed banner (if today is the planned higher-carb day) ----
+  if (s.refeedDay != null && s.refeedDay !== "" && parseInt(s.refeedDay, 10) === d.getDay()) {
+    const rfCard = el("section.card", { style: "border-color:rgba(255,91,53,.5);background:linear-gradient(180deg, rgba(255,91,53,.08), var(--bg-2))" });
+    rfCard.appendChild(el("h2", { html: '🍚 <span class="tag" style="color:var(--orange)">REFEED DAY</span>' }));
+    rfCard.appendChild(el("p", { text: REFEED.intro, style: "font-weight:600" }));
+    const ul = el("ul", { style: "padding-left:18px;margin:8px 0" });
+    REFEED.rules.forEach((r) => ul.appendChild(el("li", { text: r, style: "margin-bottom:4px;font-size:.88rem" })));
+    rfCard.appendChild(ul);
+    rfCard.appendChild(el("p.muted", { text: REFEED.example, style: "font-size:.82rem" }));
+    root.appendChild(rfCard);
+  }
 
   // ---- meals (1 big meal + 3 scoops shake + optional bite) ----
   const mealCard = card('🍽️ <span class="tag">Eat (' + EATING_WINDOW.fastUntil + "–" + EATING_WINDOW.stopEating + ")</span>", []);

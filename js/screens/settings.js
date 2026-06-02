@@ -37,6 +37,14 @@ export function renderSettings(root, { refresh }) {
   }}));
   root.appendChild(goalCard);
 
+  // ---- refeed day ----
+  const rfCard = card('🍚 <span class="tag">Refeed day (planned higher carbs)</span>', []);
+  rfCard.appendChild(el("p.muted", { text: "Pick ONE day a week where the deficit pauses — more rice/potato, same protein, no junk. Keeps fat loss and morale going on long cuts.", style: "font-size:.85rem" }));
+  const rfSel = el("select.input", {}, [["", "Off (no refeed)"], ...DAY_NAMES.map((n, i) => [String(i), n])].map(([v, t]) => el("option", { value: v, text: t, ...(String(s.refeedDay ?? "") === v ? { selected: true } : {}) })));
+  rfSel.addEventListener("change", () => { setSettings({ refeedDay: rfSel.value === "" ? null : parseInt(rfSel.value, 10) }); toast("Refeed day saved"); });
+  rfCard.appendChild(rfSel);
+  root.appendChild(rfCard);
+
   // ---- weekly schedule ----
   const schCard = card('🗓️ <span class="tag">Workout schedule</span>', []);
   const sched = { ...s.schedule };

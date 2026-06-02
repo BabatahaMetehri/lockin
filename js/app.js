@@ -123,6 +123,12 @@ function enterApp() {
   initRouter();
   scheduleAll().catch(() => {});   // (re)arm daily reminders if permission granted
   startAutoLock();
+  if (!getSettings().onboarded) {
+    import("./onboarding.js").then(({ renderOnboarding }) => renderOnboarding(() => {
+      // re-render Today so the new "why" / goal show up immediately
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    }));
+  }
 }
 
 /* Auto-lock on inactivity (default 5 min). Resets on touch/click/keypress. */

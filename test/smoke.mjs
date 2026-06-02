@@ -30,6 +30,11 @@ const page = await browser.newPage();
 page.on("console", (m) => { if (m.type() === "error") errors.push("console: " + m.text()); });
 page.on("pageerror", (e) => errors.push("pageerror: " + e.message));
 
+await page.addInitScript(() => {
+  if (!localStorage.getItem("lockin.state.v1")) {
+    localStorage.setItem("lockin.state.v1", JSON.stringify({ settings: { onboarded: true } }));
+  }
+});
 await page.goto(base, { waitUntil: "networkidle" });
 
 // --- create PIN 1234 twice ---

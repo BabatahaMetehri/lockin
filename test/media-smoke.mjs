@@ -23,6 +23,11 @@ const page = await browser.newPage();
 page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
 page.on("pageerror", (e) => errors.push(e.message));
 
+await page.addInitScript(() => {
+  if (!localStorage.getItem("lockin.state.v1")) {
+    localStorage.setItem("lockin.state.v1", JSON.stringify({ settings: { onboarded: true } }));
+  }
+});
 await page.goto(base, { waitUntil: "networkidle" });
 const typePin = async (pin) => { for (const d of pin) await page.click(`.key:has-text("${d}")`); };
 await typePin("1234"); await page.waitForTimeout(250); await typePin("1234");

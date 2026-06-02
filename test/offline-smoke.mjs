@@ -30,8 +30,8 @@ await page.goto(base, { waitUntil: "load" });
 // Poll the SW cache until the shell is fully stored.
 const cached = await page.waitForFunction(async () => {
   if (!("caches" in window)) return false;
-  if (!(await caches.keys()).includes("lockin-v4")) return false;
-  const c = await caches.open("lockin-v4");
+  if (!(await caches.keys()).includes("lockin-v5")) return false;
+  const c = await caches.open("lockin-v5");
   const keys = (await c.keys()).map((k) => new URL(k.url).pathname);
   const need = ["/index.html", "/css/styles.css", "/js/app.js", "/js/data.js", "/manifest.webmanifest"];
   return need.every((n) => keys.some((k) => k.endsWith(n))) ? keys.length : false;
