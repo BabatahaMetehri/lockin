@@ -5,7 +5,8 @@ import { el, card, checkRow } from "../ui.js";
 import {
   getSettings, getState, getDayLog, toggleCheck, setDayLog, todayKey, latestWeight, logWeight,
 } from "../store.js";
-import { fastingStatus, fmtCountdown } from "../calc.js";
+import { fastingStatus, fmtCountdown, daysSince, weeklyRate, etaToGoal, dietBreakStatus } from "../calc.js";
+import { statBox } from "../ui.js";
 import { burst } from "../confetti.js";
 import { heroQuote } from "../quotes.js";
 import { tap, chime } from "../feedback.js";
@@ -13,7 +14,7 @@ import { searchFood } from "../foodapi.js";
 import { addCustomMeal, deleteCustomMeal } from "../store.js";
 import {
   WORKOUTS, WEEK_SCHEDULE, LUNCHES, DINNERS, SNACK, SUPPLEMENTS,
-  EATING_WINDOW, DAILY_EXTRAS, TARGETS, WARMUP, REFEED,
+  EATING_WINDOW, DAILY_EXTRAS, TARGETS, WARMUP, REFEED, DIET_BREAK,
 } from "../data.js";
 
 export function renderToday(root, { go, refresh }) {
@@ -25,6 +26,33 @@ export function renderToday(root, { go, refresh }) {
 
   // ---- BIG vibrant hero quote ----
   root.appendChild(heroQuote());
+
+  // ---- quick stats strip (Day N · kg lost · weeks to goal) ----
+  const dayN = daysSince(s.startDate, d) + 1;
+  const lost = s.startWeightKg - latestWeight();
+  const rate = weeklyRate(getState().weights);
+  const eta = etaToGoal(latestWeight(), s.goalWeightKg, rate);
+  root.appendChild(el("div.stat-row", { style: "margin-bottom:14px" }, [
+    statBox("Day " + dayN, "of the journey", "lime"),
+    statBox((lost >= 0 ? "−" : "+") + Math.abs(lost).toFixed(1), "kg lost", lost > 0 ? "lime" : ""),
+    statBox(eta && eta.weeks > 0 ? Math.ceil(eta.weeks) : "—", "weeks to " + s.goalWeightKg + "kg"),
+  ]));
+
+  // ---- diet break: active banner OR overdue nudge ----
+  const dbs = dietBreakStatus(s, d);
+  if (dbs.active) {
+    const dbCard = el("section.card", { style: "border-color:rgba(255,91,53,.6);background:linear-gradient(180deg, rgba(255,91,53,.12), var(--bg-2))" });
+    dbCard.appendChild(el("h2", { html: `🍱 <span class="tag" style="color:var(--orange)">DIET BREAK · DAY ${dbs.daysIntoBreak + 1} of 7</span>` }));
+    dbCard.appendChild(el("p", { text: DIET_BREAK.intro, style: "font-weight:600" }));
+    const ul = el("ul", { style: "padding-left:18px;margin:8px 0" });
+    DIET_BREAK.rules.forEach((r) => ul.appendChild(el("li", { text: r, style: "margin-bottom:4px;font-size:.88rem" })));
+    dbCard.appendChild(ul);
+    root.appendChild(dbCard);
+  } else if (!dbs.never && dbs.daysSinceEnd >= 49) {
+    root.appendChild(el("section.card", { style: "border-color:rgba(255,91,53,.4)" }, [
+      el("p", { html: `🍱 <b>Diet break overdue.</b> It's been ${dbs.daysSinceEnd} days since your last one. Consider taking a full week at maintenance from Settings.` }),
+    ]));
+  }
 
   // ---- fasting / eating window countdown ----
   const fs = fastingStatus(d, s.fastUntil || EATING_WINDOW.fastUntil, s.stopEating || EATING_WINDOW.stopEating);
@@ -223,7 +251,7 @@ function buildLogger(date, refresh) {
       const items = await searchFood(q.value);
       status.textContent = items.length ? "" : "No results. Try a simpler term or add it manually.";
       items.forEach((it) => results.appendChild(resultRow(it)));
-    } catch (e) { status.textContent = "Offline or blocked. Add it manually below."; }
+    } catch (e) { status.textContent = e.message || "Search failed. Add it manually below."; }
   }});
 
   function resultRow(it) {

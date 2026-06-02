@@ -7,8 +7,10 @@ import { exportAll, importAll } from "../backup.js";
 import { getMediaKey, setMediaKey } from "../pin.js";
 import { hashPin, verifyPin, deriveKey, encryptBytes, decryptBytes } from "../crypto.js";
 import { getAllMedia, putMedia } from "../db.js";
-import { WORKOUTS } from "../data.js";
+import { WORKOUTS, DIET_BREAK } from "../data.js";
 import { toast, go } from "../router.js";
+import { daysSince, dietBreakStatus } from "../calc.js";
+import { todayKey } from "../store.js";
 import { getReminders, setReminders, enableNotifications, permission, fireTest, scheduleAll, reminderInfo } from "../reminders.js";
 
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -49,13 +51,63 @@ export function renderSettings(root, { refresh }) {
   const schCard = card('🗓️ <span class="tag">Workout schedule</span>', []);
   const sched = { ...s.schedule };
   const opts = [["rest", "Rest"], ["walk", "Walk"], ...Object.values(WORKOUTS).map((w) => [w.id, `Workout ${w.id} (${w.title})`])];
+  // visual week chips
+  const chips = el("div", { style: "display:flex;gap:4px;margin-bottom:12px" });
+  const chipFor = (sch) => {
+    let cls = "mut", label = sch;
+    if (sch === "walk") { cls = "orange"; label = "WALK"; }
+    else if (sch === "rest") { cls = "mut"; label = "REST"; }
+    else { cls = "lime"; label = sch; }
+    return { cls, label };
+  };
+  const renderChips = () => {
+    chips.innerHTML = "";
+    for (let i = 0; i < 7; i++) {
+      const { cls, label } = chipFor(sched[i]);
+      chips.appendChild(el("span.pill " + cls, { html: `<small>${DAY_NAMES[i][0]}</small><br>${label}`, style: "flex:1;text-align:center;padding:8px 0;font-size:.72rem;line-height:1.1" }));
+    }
+  };
+  renderChips();
+  schCard.appendChild(chips);
   for (let day = 0; day < 7; day++) {
     const sel = el("select.input", {}, opts.map(([v, t]) => el("option", { value: v, text: t, ...(sched[day] === v ? { selected: true } : {}) })));
-    sel.addEventListener("change", () => { sched[day] = sel.value; });
+    sel.addEventListener("change", () => { sched[day] = sel.value; renderChips(); });
     schCard.appendChild(el("label.field", {}, [el("span", { text: DAY_NAMES[day] }), sel]));
   }
   schCard.appendChild(el("button.btn", { text: "Save schedule", onclick: () => { setSettings({ schedule: sched }); toast("Schedule saved"); refresh(); } }));
   root.appendChild(schCard);
+
+  // ---- start the journey today ----
+  const dayN = daysSince(s.startDate, new Date()) + 1;
+  root.appendChild(card('🚀 <span class="tag">Start date</span>', [
+    el("p", { html: `Started: <b>${s.startDate}</b> · Today is <b>Day ${dayN}</b>.` }),
+    el("button.btn big", { text: "🚀 Start the journey today (reset to Day 1)", onclick: () => {
+      if (!confirm("Reset your start date to today? Your weight history and logs are kept — only the Day counter resets to 1.")) return;
+      setSettings({ startDate: todayKey() });
+      toast("Day 1. Lock in.");
+      refresh();
+    }}),
+  ]));
+
+  // ---- diet break ----
+  const db = dietBreakStatus(s, new Date());
+  const dbCard = card('🍱 <span class="tag">Diet break (weekly maintenance)</span>', []);
+  dbCard.appendChild(el("p", { text: DIET_BREAK.intro }));
+  if (db.active) dbCard.appendChild(el("p.pill orange", { text: `🟢 Active — day ${db.daysIntoBreak + 1} of 7`, style: "display:inline-block" }));
+  else if (db.never) dbCard.appendChild(el("p.muted", { text: "No diet break taken yet." }));
+  else dbCard.appendChild(el("p.muted", { text: `Last break ended ${db.daysSinceEnd} days ago.` }));
+  dbCard.appendChild(el("button.btn warn big", { text: db.active ? "End the diet break now" : "Start a 7-day diet break today", style: "margin-top:10px", onclick: () => {
+    if (db.active) {
+      if (!confirm("End the current diet break now?")) return;
+      setSettings({ dietBreakStartDate: null });
+    } else {
+      if (!confirm("Start a 7-day diet break TODAY at maintenance (~2,800 kcal)? Same clean foods, bigger portions.")) return;
+      setSettings({ dietBreakStartDate: todayKey() });
+    }
+    toast(db.active ? "Diet break ended" : "Diet break week started 🍱");
+    refresh();
+  }}));
+  root.appendChild(dbCard);
 
   // ---- install on this device ----
   if (window.__installEvent) {

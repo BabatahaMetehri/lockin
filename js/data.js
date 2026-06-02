@@ -274,6 +274,23 @@ export const REFEED = {
     "+ 3 scoops whey + 2 boiled eggs + a banana. Same foods, bigger portions.",
 };
 
+/* ---------- Diet break (full WEEK at maintenance, every 8–12 weeks) ----------
+   Different from a refeed day. After ~8–12 weeks of cutting, take a WHOLE week
+   at maintenance calories. Hormones recover, adherence resets, fat loss resumes.
+   This is the difference between losing 30 kg and crashing at week 6. */
+export const DIET_BREAK = {
+  intro: "Every 8–12 weeks of cutting, you take a FULL WEEK at maintenance (~2,800–3,000 kcal). Not a cheat week. Same clean foods — just bigger portions. This protects muscle, hormones, and your mind.",
+  rules: [
+    "Calories: maintenance (~2,800–3,000 kcal). Eat to full satisfaction.",
+    "Protein stays at 180 g/day.",
+    "Add carbs liberally — rice, potato, oats, fruit. That's the point.",
+    "Same clean foods. No fried, no junk, no alcohol.",
+    "Train as normal. Walks still happen.",
+    "After 7 days, you go straight back to 1,800 kcal. Expect the scale to drop fast in week 1 of the new cut block (water).",
+  ],
+  cadence: 56, // suggested days between diet breaks (8 weeks)
+};
+
 export const HERO_QUOTES = [
   { line: "EARN.\nIT.",                vibe: "lime"   },
   { line: "NO ZERO\nDAYS.",            vibe: "orange" },

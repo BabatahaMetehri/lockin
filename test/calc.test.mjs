@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { bmi, bmiCategory, totalLost, progressPct, weeklyRate, currentStreak, ageFrom,
-  lockedInDays, rankFor, fastingStatus, fmtCountdown, etaToGoal, daysSince } from "../js/calc.js";
+  lockedInDays, rankFor, fastingStatus, fmtCountdown, etaToGoal, daysSince, dietBreakStatus } from "../js/calc.js";
 import { RANKS } from "../js/data.js";
 
 let pass = 0;
@@ -91,6 +91,17 @@ t("etaToGoal projects weeks when losing, null when not", () => {
 
 t("daysSince", () => {
   assert.equal(daysSince("2026-05-20", new Date(2026, 4, 26)), 6);
+});
+
+t("dietBreakStatus: never / active / past", () => {
+  assert.deepEqual(dietBreakStatus({}, new Date(2026, 4, 26)), { active: false, never: true });
+  // active on day 0 and day 6, not on day 7
+  const s = { dietBreakStartDate: "2026-05-20" };
+  assert.equal(dietBreakStatus(s, new Date(2026, 4, 20)).active, true);
+  assert.equal(dietBreakStatus(s, new Date(2026, 4, 26)).active, true);
+  assert.equal(dietBreakStatus(s, new Date(2026, 4, 27)).active, false);
+  // 10 days after start = 3 days since end
+  assert.equal(dietBreakStatus(s, new Date(2026, 4, 30)).daysSinceEnd, 3);
 });
 
 console.log(`PASSED ${pass} calc tests\n`);

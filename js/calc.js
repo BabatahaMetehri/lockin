@@ -128,6 +128,20 @@ export function etaToGoal(currentKg, goalKg, ratePerWeek, now = new Date()) {
   return { weeks, date };
 }
 
+/**
+ * Diet break status. A break is a 7-day window starting at settings.dietBreakStartDate.
+ * Returns:
+ *   { active: true, daysIntoBreak }     if today is inside the 7-day window
+ *   { active: false, daysSinceEnd }     if a previous break ended N days ago
+ *   { active: false, never: true }      if there's never been one
+ */
+export function dietBreakStatus(settings, now = new Date()) {
+  if (!settings || !settings.dietBreakStartDate) return { active: false, never: true };
+  const days = daysSince(settings.dietBreakStartDate, now);
+  if (days < 7) return { active: true, daysIntoBreak: days };
+  return { active: false, daysSinceEnd: days - 7 };
+}
+
 /** Whole days since the journey start date (local calendar days). */
 export function daysSince(startDate, now = new Date()) {
   const [y, m, d] = String(startDate).split("-").map(Number);

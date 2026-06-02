@@ -4,7 +4,7 @@
    Renders as a full-screen overlay; calls onDone() when finished.
    ============================================================ */
 import { el } from "./ui.js";
-import { getSettings, setSettings } from "./store.js";
+import { getSettings, setSettings, todayKey } from "./store.js";
 import { GROCERY, CURRENCY } from "./data.js";
 import { chime } from "./feedback.js";
 
@@ -98,6 +98,7 @@ export function renderOnboarding(onDone) {
   function finish() {
     setSettings({
       whyText: data.whyText.trim(),
+      startDate: todayKey(),               // start the journey on Day 1 today
       startWeightKg: data.startWeightKg,
       goalWeightKg: data.goalWeightKg,
       prices: data.prices,

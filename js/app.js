@@ -163,11 +163,15 @@ function startLock() {
   } else {
     mode = "unlock";
     titleEl.textContent = "Enter your PIN";
-    subEl.textContent = "Welcome back. Lock in.";
+    const why = (getSettings().whyText || "").trim();
+    if (why) subEl.innerHTML = `Welcome back.<br><em style="color:var(--lime);font-size:.95rem;display:inline-block;margin-top:6px;max-width:300px">"${escapeHtml(why)}"</em>`;
+    else subEl.textContent = "Welcome back. Lock in.";
   }
   // hardware keyboard support
   window.addEventListener("keydown", onHardwareKey);
 }
+
+function escapeHtml(s) { return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
 
 function onHardwareKey(e) {
   if (lockEl.hidden) return;
