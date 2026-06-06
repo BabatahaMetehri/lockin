@@ -47,7 +47,8 @@
       "Bash(node -e \"import\\('./js/fooddb.js'\\).then\\(m => { console.log\\('total foods:', m.FOOD_DB.length\\); console.log\\('peach:', m.searchLocal\\('peach'\\)[0]?.name\\); console.log\\('chocolate:', m.searchLocal\\('chocolate'\\).length, 'matches'\\); console.log\\('soup:', m.searchLocal\\('soup'\\).length, 'matches'\\); console.log\\('pizza:', m.searchLocal\\('pizza'\\).length, 'matches'\\); console.log\\('bourek:', m.searchLocal\\('bourek'\\)[0]?.name\\); console.log\\('zriaa:', m.searchLocal\\('zriaa'\\)[0]?.name\\); console.log\\('avocat:', m.searchLocal\\('avocat'\\)[0]?.name\\); }\\)\")",
       "Bash(node test/fooddb.test.mjs)",
       "Bash(node test/calendar.test.mjs)",
-      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Expand FOOD_DB from 65 to 278 items across all genres *)"
+      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Expand FOOD_DB from 65 to 278 items across all genres *)",
+      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'LOCKIN spec v2 — foundation: 18:6, 1650 kcal auto-recalc, master clock, fixed meals data *)"
     ]
   }
 }

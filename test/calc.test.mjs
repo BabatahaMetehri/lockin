@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { bmi, bmiCategory, totalLost, progressPct, weeklyRate, currentStreak, ageFrom,
-  lockedInDays, rankFor, fastingStatus, fmtCountdown, etaToGoal, daysSince, dietBreakStatus } from "../js/calc.js";
-import { RANKS } from "../js/data.js";
+  lockedInDays, rankFor, fastingStatus, fmtCountdown, etaToGoal, daysSince, dietBreakStatus,
+  calorieTargetFor, masterClockNow, latestRollingAvg, rollingAvgSeries } from "../js/calc.js";
+import { RANKS, MASTER_CLOCK } from "../js/data.js";
 
 let pass = 0;
 const t = (name, fn) => { fn(); pass++; console.log("  ok -", name); };
@@ -102,6 +103,50 @@ t("dietBreakStatus: never / active / past", () => {
   assert.equal(dietBreakStatus(s, new Date(2026, 4, 27)).active, false);
   // 10 days after start = 3 days since end
   assert.equal(dietBreakStatus(s, new Date(2026, 4, 30)).daysSinceEnd, 3);
+});
+
+t("calorieTargetFor: 1650 base, −100 per 15kg, floored", () => {
+  assert.equal(calorieTargetFor(112.7, 112.7).target, 1650);
+  assert.equal(calorieTargetFor(112.7, 112.7).tier, 0);
+  assert.equal(calorieTargetFor(112.7, 97.7).target, 1550); // −15kg
+  assert.equal(calorieTargetFor(112.7, 97.7).tier, 1);
+  assert.equal(calorieTargetFor(112.7, 82.7).target, 1450); // −30kg
+  assert.equal(calorieTargetFor(112.7, 80).target, 1450);   // −32.7kg still tier 2
+  assert.equal(calorieTargetFor(112.7, 40, { floor: 1400 }).target, 1400); // floored
+});
+
+t("calorieTargetFor: nextRecalcWeight", () => {
+  assert.ok(Math.abs(calorieTargetFor(112.7, 112.7).nextRecalcWeight - 97.7) < 1e-9);
+  assert.ok(Math.abs(calorieTargetFor(112.7, 97.7).nextRecalcWeight - 82.7) < 1e-9);
+});
+
+t("masterClockNow resolves current/next", () => {
+  const at = (h, m) => new Date(2026, 5, 3, h, m);
+  // 14:30 → current is meal1 (14:00), next is work2 (15:00)
+  let r = masterClockNow(at(14, 30), MASTER_CLOCK);
+  assert.equal(r.current.id, "meal1");
+  assert.equal(r.next.id, "work2");
+  // 06:00 (before first 08:00) → carry-over: current = last (sleep), next = wake
+  r = masterClockNow(at(6, 0), MASTER_CLOCK);
+  assert.equal(r.current.id, "sleep");
+  assert.equal(r.next.id, "wake");
+  // 23:00 (after last) → current = sleep, next wraps to wake
+  r = masterClockNow(at(23, 0), MASTER_CLOCK);
+  assert.equal(r.current.id, "sleep");
+  assert.equal(r.next.id, "wake");
+});
+
+t("rolling 7-day average smooths and reports latest", () => {
+  const w = [
+    { date: "2026-06-01", kg: 110 },
+    { date: "2026-06-02", kg: 112 }, // noise spike
+    { date: "2026-06-03", kg: 109 },
+  ];
+  const series = rollingAvgSeries(w, 7);
+  assert.equal(series.length, 3);
+  assert.equal(series[0].kg, 110);
+  assert.ok(Math.abs(latestRollingAvg(w, 7) - 110.3) < 0.05); // (110+112+109)/3
+  assert.equal(latestRollingAvg([], 7), null);
 });
 
 console.log(`PASSED ${pass} calc tests\n`);

@@ -68,8 +68,64 @@ export function bmrMale(kg, cm, age) {
 }
 
 /** Rough TDEE estimate at the given activity factor. */
-export function estTDEE(kg, cm, age, activity = 1.45) {
+export function estTDEE(kg, cm, age, activity = 1.4) {
   return bmrMale(kg, cm, age) * activity;
+}
+
+/**
+ * F1 — auto-recalculating calorie target.
+ * Target drops one step (default 100 kcal) for every `tierKg` (15) lost,
+ * floored. Matches the spec timeline: 1650 → 1550 (−15kg) → 1450 (−30kg).
+ * @returns {{ target, tier, lost, nextRecalcWeight }}
+ */
+export function calorieTargetFor(startKg, currentKg, cfg = {}) {
+  const base = cfg.baseTarget ?? 1650;
+  const step = cfg.stepPerTier ?? 100;
+  const tierKg = cfg.tierKg ?? 15;
+  const floor = cfg.floor ?? 1400;
+  const lost = Math.max(0, startKg - currentKg);
+  const tier = Math.floor(lost / tierKg);
+  const target = Math.max(floor, base - step * tier);
+  const nextRecalcWeight = startKg - (tier + 1) * tierKg;
+  return { target, tier, lost, nextRecalcWeight };
+}
+
+/** Minutes since midnight for an "HH:MM" string. (exported for clock math) */
+export function minutesOfDay(hhmm) { return toMin(hhmm); }
+
+/**
+ * Resolve the current + next Master Clock entries for `now`.
+ * Before the first entry of the day, "current" is the last entry (carry-over
+ * from last night) and "next" is the first entry.
+ * @returns {{ current, next, currentIdx }}
+ */
+export function masterClockNow(now, clock) {
+  const mins = now.getHours() * 60 + now.getMinutes();
+  let found = -1;
+  for (let i = 0; i < clock.length; i++) {
+    if (toMin(clock[i].time) <= mins) found = i; else break;
+  }
+  if (found === -1) {
+    return { current: clock[clock.length - 1], next: clock[0], currentIdx: clock.length - 1 };
+  }
+  return { current: clock[found], next: clock[found + 1] || clock[0], currentIdx: found };
+}
+
+/** 7-day rolling-average weight series (smooths daily noise). */
+export function rollingAvgSeries(weights, windowDays = 7) {
+  const sorted = [...(weights || [])].sort((a, b) => a.date.localeCompare(b.date));
+  return sorted.map((pt, i) => {
+    const cutoff = new Date(pt.date).getTime() - (windowDays - 1) * 86400000;
+    const win = sorted.filter((w, j) => j <= i && new Date(w.date).getTime() >= cutoff);
+    const avg = win.reduce((s, w) => s + w.kg, 0) / win.length;
+    return { date: pt.date, kg: Math.round(avg * 10) / 10 };
+  });
+}
+
+/** Latest 7-day rolling-average weight (the headline number — not raw daily). */
+export function latestRollingAvg(weights, windowDays = 7) {
+  const s = rollingAvgSeries(weights, windowDays);
+  return s.length ? s[s.length - 1].kg : null;
 }
 
 /** Count of days that have any logged activity ("locked-in days"). */

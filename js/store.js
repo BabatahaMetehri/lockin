@@ -2,27 +2,33 @@
    store.js — localStorage-backed state (logs, settings, schedule).
    Media (photos/videos) live in IndexedDB (db.js), NOT here.
    ============================================================ */
-import { PROFILE, TARGETS, WEEK_SCHEDULE } from "./data.js";
+import { PROFILE, TARGETS, WEEK_SCHEDULE, EATING_WINDOW } from "./data.js";
 
 const KEY = "lockin.state.v1";
+const SPEC_VERSION = 2; // bump to push fixed-plan config changes onto existing users
 
 function defaultState() {
   return {
     settings: {
       pinHash: null, pinSalt: null,
+      specVersion: SPEC_VERSION,
       startDate: PROFILE.startDate,
       startWeightKg: PROFILE.startWeightKg,
       heightCm: PROFILE.heightCm,
       goalWeightKg: PROFILE.goalWeightKg,
       kcal: TARGETS.kcal, proteinG: TARGETS.proteinG,
       steps: TARGETS.steps, waterL: TARGETS.waterL,
+      fastUntil: EATING_WINDOW.fastUntil, stopEating: EATING_WINDOW.stopEating,
+      calorieTier: 0,        // F1: which 15kg recalc tier the target reflects
+      bandsArrived: false,   // unlocks band exercises
       whyText: "",
       schedule: { ...WEEK_SCHEDULE },
     },
     weights: [],          // [{date:'YYYY-MM-DD', kg:Number}]
-    dayLogs: {},          // { 'YYYY-MM-DD': { checks:{}, water:Number, steps:Number, workoutDone:bool, mood, notes } }
-    workoutLog: [],       // [{date, workoutId, exercises:[{name, sets:[{reps,load}]}]}]
-    grocery: {},          // { itemName: true } -> checked off
+    dayLogs: {},          // { 'YYYY-MM-DD': { checks:{}, water, steps, workoutDone, notes, cleanFast } }
+    workoutLog: [],       // [{date, workoutId, exercises:[{name, kind, sets:[{reps,load,seconds}]}]}]
+    symptomLog: [],       // [{date, type}] for guardrails + correlation
+    grocery: {},          // { itemId: true } -> checked off
   };
 }
 
@@ -41,10 +47,28 @@ export function load() {
 
 function migrate(s) {
   const d = defaultState();
-  return {
+  const merged = {
     ...d, ...s,
-    settings: { ...d.settings, ...(s.settings || {}), schedule: { ...d.settings.schedule, ...((s.settings || {}).schedule || {}) } },
+    settings: { ...d.settings, ...(s.settings || {}) },
+    symptomLog: s.symptomLog || [],
   };
+  // Spec bump: force the new fixed-plan config onto pre-v2 users (keeps their
+  // logs, weights, why, goal, prices, PIN — only the rigid plan values change).
+  if ((s.settings?.specVersion || 0) < SPEC_VERSION) {
+    merged.settings.heightCm = PROFILE.heightCm;
+    merged.settings.kcal = TARGETS.kcal;
+    merged.settings.proteinG = TARGETS.proteinG;
+    merged.settings.steps = TARGETS.steps;
+    merged.settings.waterL = TARGETS.waterL;
+    merged.settings.fastUntil = EATING_WINDOW.fastUntil;
+    merged.settings.stopEating = EATING_WINDOW.stopEating;
+    merged.settings.schedule = { ...WEEK_SCHEDULE };
+    merged.settings.reminders = undefined; // rebuilt from the new Master Clock
+    merged.settings.specVersion = SPEC_VERSION;
+  } else {
+    merged.settings.schedule = { ...d.settings.schedule, ...((s.settings || {}).schedule || {}) };
+  }
+  return merged;
 }
 
 export function save() {
@@ -123,6 +147,25 @@ export function deleteCustomMeal(date, id) {
   log.customMeals = (log.customMeals || []).filter((m) => m.id !== id);
   save();
 }
+
+/* ---------- symptom log (drives guardrails) ---------- */
+export function addSymptom(type, date = todayKey()) {
+  const s = load();
+  s.symptomLog = s.symptomLog || [];
+  s.symptomLog.push({ date, type });
+  save();
+}
+export function getSymptoms() { return load().symptomLog || []; }
+export function symptomsOn(date) { return (load().symptomLog || []).filter((x) => x.date === date); }
+export function recentSymptomTypes(days = 3, now = new Date()) {
+  const cutoff = now.getTime() - days * 86400000;
+  const types = new Set();
+  (load().symptomLog || []).forEach((x) => { if (new Date(x.date).getTime() >= cutoff) types.add(x.type); });
+  return [...types];
+}
+
+/* ---------- clean-fast honesty check (F7) ---------- */
+export function setCleanFast(date, value) { setDayLog(date, { cleanFast: value }); }
 
 /* ---------- grocery ---------- */
 export function toggleGrocery(item) {

@@ -6,36 +6,61 @@
 export const PROFILE = {
   name: "Taha",
   dob: "2000-01-18",
-  heightCm: 175,
+  heightCm: 174,
   startWeightKg: 112.7,
   startDate: "2026-05-26",
   goalWeightKg: 80,
 };
 
+/* Calorie engine. Target auto-recalculates every 15 kg lost (see calc.js).
+   Base 1650 at start (~2,950 TDEE − 1,300 deficit); −100 per 15 kg lost. */
+export const CALORIE = {
+  baseTarget: 1650,
+  stepPerTier: 100,     // drop target 100 kcal each 15 kg lost
+  tierKg: 15,           // recompute every 15 kg
+  floor: 1400,          // never prescribe below this
+  activityFactor: 1.4,  // sedentary + 10k steps
+  deficit: 1300,
+};
+
 export const TARGETS = {
-  kcal: 1800,
-  proteinG: 180,
-  fatG: 50,
-  carbsG: 155,
+  kcal: 1650,
+  proteinG: 130,        // from the two fixed meals (132 g)
+  fatG: 31,
+  carbsG: 148,
   waterL: 3,
-  steps: 8000,
+  steps: 10000,
 };
 
+/* 18:6 intermittent fast. */
 export const EATING_WINDOW = {
-  fastUntil: "12:30",
+  fastUntil: "14:00",
   stopEating: "20:00",
-  note: "Fast 8pm → 12:30pm. During the fast: water, black coffee, plain/green tea only (no milk, no sugar).",
+  note: "18:6 fast. Window 14:00–20:00. Outside it: water, black coffee, plain/green tea only — no milk, no sugar, no calories.",
 };
 
+/* Steps are the primary fat-loss engine and knee-safe. Split into two walks. */
+export const STEPS_PLAN = {
+  total: 10000,
+  morning: 5000,   // fasted, ~08:30
+  evening: 5000,   // ~18:00
+  note: "10,000 steps/day, split 5,000 fasted morning + 5,000 evening. This is the engine — non-negotiable.",
+};
+
+/* Low-FODMAP / IBS hard rules. */
 export const EXCLUDED_FOODS = [
-  "Onion & garlic", "Beans, lentils, chickpeas (legumes)",
-  "Fried & very fatty food", "Spicy food (harissa, hot pepper)",
+  "Onion & garlic (incl. any powder containing them)",
+  "Beans, lentils, chickpeas (legumes)",
+  "Fried & very fatty food",
+  "Spicy food (harissa, hot pepper)",
   "Milk & yogurt (lactose)",
+  "Oats above 60 g/day (fructan load)",
 ];
 
 export const SEASONING_RULES =
-  "Season with: cumin, lemon, salt, mild black pepper, sweet paprika, parsley, coriander, mint, olive oil. " +
-  "NEVER: onion/garlic, harissa/hot pepper. Hard/aged cheese is fine.";
+  "Allowed spices ONLY: cumin, paprika, salt, black pepper. " +
+  "NEVER: onion, garlic, or any powder containing them; no harissa/hot pepper. " +
+  "Tuna in water only. Introduce fiber gradually — do not push above ~20 g/day. Hard/aged cheese is fine.";
 
 export const RECIPE_BASICS = [
   { name: "Boiled rice", steps: "Rinse 50g dry white rice. Add to pot with 120ml water + pinch salt. Boil, cover, simmer ~12 min until water absorbed. Rest 5 min." },
@@ -97,6 +122,51 @@ export const SNACK = {
 
 export const DAILY_EXTRAS = "Optional: handful of oats with one of the shakes on workout days.";
 
+/* ============================================================
+   FIXED PLAN (the spec's two meals — no swaps). 18:6 window.
+   Each meal has an ingredient table; totals are precomputed.
+   ============================================================ */
+export const FIXED_MEALS = [
+  {
+    id: "meal1", time: "14:00", name: "The Big Plate",
+    note: "Window opens. This is the Vitamin D3 fat-pairing meal. Take Omega-3 + D3/K2 + 5 g creatine with it.",
+    ingredients: [
+      { item: "Chicken breast", raw: "200 g", prep: "Air fryer", kcal: 220, p: 46, c: 0, f: 4 },
+      { item: "White rice (dry)", raw: "70 g", prep: "Stove", kcal: 250, p: 5, c: 55, f: 1 },
+      { item: "White potato", raw: "200 g", prep: "Air fryer", kcal: 154, p: 4, c: 35, f: 0 },
+      { item: "Cucumber", raw: "150 g", prep: "Raw", kcal: 16, p: 1, c: 3, f: 0 },
+      { item: "Carrot", raw: "80 g", prep: "Raw / air fryer", kcal: 33, p: 1, c: 8, f: 0 },
+      { item: "Olive oil", raw: "8 g", prep: "Drizzle", kcal: 70, p: 0, c: 0, f: 8 },
+    ],
+    total: { kcal: 743, p: 57, c: 101, f: 13, fiber: 8 },
+  },
+  {
+    id: "meal2", time: "19:30", name: "The Protein Close",
+    note: "Last food before the window closes at 20:00. Take 1 scoop ISO protein with it.",
+    ingredients: [
+      { item: "Canned tuna (in water, drained)", raw: "1 can ~120 g", prep: "—", kcal: 130, p: 28, c: 0, f: 2 },
+      { item: "Oats (dry)", raw: "60 g", prep: "Stove, water", kcal: 228, p: 8, c: 40, f: 4 },
+      { item: "Egg", raw: "2 large", prep: "Air fryer / stove", kcal: 156, p: 13, c: 1, f: 11 },
+      { item: "Cucumber / carrot", raw: "120 g", prep: "Raw", kcal: 20, p: 1, c: 4, f: 0 },
+      { item: "ISO protein (lactose-free)", raw: "1 scoop ~30 g", prep: "Water", kcal: 115, p: 25, c: 2, f: 1 },
+    ],
+    total: { kcal: 649, p: 75, c: 47, f: 18, fiber: 8 },
+  },
+];
+
+export const MEALS_DAILY_TOTAL = { kcal: 1392, p: 132, c: 148, f: 31, fiber: 16 };
+
+/* Zero-calorie munching strategy — converts the desk-chewing habit. */
+export const SNACK_HACKS = [
+  { id: "cuke-spears", name: "Ice-Brined Cucumber Spears", tag: "desk default", kcal: "~15 kcal / bowl",
+    how: "Cucumber spears in a jar of ice water + pinch of salt + splash of vinegar. Chill 1h+. Snap-crunchy at the desk." },
+  { id: "carrot-chips", name: "Air-Fryer Carrot & Radish Chips", tag: "crunchy", kcal: "~40 kcal / batch",
+    how: "Paper-thin slices, tiny mist of oil, salt + paprika. ~160°C, shake often until crisp." },
+  { id: "cuke-crisps", name: "Air-Fryer Cucumber Crisps", tag: "near-zero", kcal: "~0 kcal",
+    how: "Thin rounds, salt, pat dry. Air-fry low + slow to leathery-crisp." },
+];
+export const MUNCH_RULE = "Outside the eating window, the urge = water or black coffee, NOT food. Crunch on the brined cucumber if you must chew.";
+
 export const BUDGET_NOTE =
   "Eat cheap on purpose: eggs, potatoes, rice, pasta, oats and canned fish are your protein-and-energy backbone — all cheap. " +
   "Chicken is the priciest thing here, so it's only ~2 days a week. Your whey covers a big slice of protein and you already own it. " +
@@ -122,76 +192,84 @@ export const GROCERY = [
 ];
 
 export const SUPPLEMENTS = [
-  { id: "creatine", name: "Creatine monohydrate", dose: "5 g", when: "with Meal 1 (any time, daily)" },
-  { id: "whey", name: "Whey ISO protein", dose: "2 scoops", when: "4pm snack (+ post-workout)" },
-  { id: "omega3", name: "Omega-3", dose: "per label", when: "with Meal 1 (needs fat)" },
-  { id: "d3k2", name: "Vitamin D3 + K2", dose: "per label", when: "with Meal 1 (fat-soluble)" },
+  { id: "omega3", name: "Omega-3 fish oil", dose: "per label", when: "with Meal 1 (14:00) — needs dietary fat" },
+  { id: "d3k2", name: "Vitamin D3 + K2", dose: "per label", when: "with Meal 1 (14:00) — fat-soluble" },
+  { id: "creatine", name: "Creatine monohydrate", dose: "5 g", when: "with Meal 1 (timing flexible, just be consistent)" },
+  { id: "iso", name: "ISO protein (lactose-free)", dose: "1 scoop", when: "with Meal 2 (19:30)" },
 ];
 
-/* ---------- Training: BEGINNER scaling for a 113kg untrained start. ----------
-   Each exercise has a `kind`:
-     'reps'         — count reps per set (button/+ counter)
-     'time'         — hold for N seconds (built-in timer)
-     'reps_weight'  — reps + load (filled bottles, backpack)
-   `video` is a YouTube SEARCH url so the link never rots.
-   `target` defines starting sets / reps / seconds. Beat last time = progress. */
+/* ---------- Training: 4-day Upper/Lower, knee-safe. ----------
+   ZERO running, ZERO jumping (hard rule — knee protection at high bodyweight).
+   Intensity comes from TEMPO + mechanical disadvantage, not impact.
+   `tempo` is lower-pause-up in seconds (e.g. "3-1-1").
+   Each exercise keeps the logger shape: kind + target + scheme. */
 export const TRAINING_NOTE =
-  "NO gear needed. Optional load: a backpack/bottles filled with water, books or rice — start LIGHT (2–3 kg). " +
-  "Workouts are short (~20–25 min) and scaled to a 113 kg beginner. Wall push-ups are 100% fine — start there.";
+  "4 days/week Upper/Lower. ZERO running, ZERO jumping — ever (knee protection). " +
+  "Intensity = slow tempo + mechanical disadvantage. No gear except chairs + a table; resistance bands unlock more when they arrive.";
 
 export const OVERLOAD_RULE =
-  "BEAT LAST TIME. Progress order: +1 rep → +5 sec hold → +1 set → harder variation → add a bit of load.";
+  "BEAT LAST TIME. Progress order: +1 rep → slower negative → +1 set → harder variation → (bands) more tension.";
 
 const yt = (q) => "https://www.youtube.com/results?search_query=" + encodeURIComponent(q + " tutorial proper form");
 
 export const WORKOUTS = {
-  A: { id: "A", title: "Lower — beginner", duration: "~20 min", exercises: [
-    { name: "Bodyweight squat",   kind: "reps", target: { sets: 3, reps: 8 },   scheme: "3 × 8",     how: "Stand shoulder-width. Sit back like onto a chair. Knees track over toes. Don't need to go deep — quality > depth.", video: yt("bodyweight squat") },
-    { name: "Glute bridge",       kind: "reps", target: { sets: 3, reps: 10 },  scheme: "3 × 10",    how: "On your back, knees bent. Drive hips up squeezing glutes. Pause 1 sec at top.", video: yt("glute bridge") },
-    { name: "Wall sit",           kind: "time", target: { sets: 3, seconds: 20 }, scheme: "3 × 20s", how: "Back flat on wall, thighs parallel to floor (or close). Hold. The timer is built in.", video: yt("wall sit") },
-    { name: "Calf raises",        kind: "reps", target: { sets: 3, reps: 12 },  scheme: "3 × 12",    how: "Stand tall, raise onto toes, slow down.", video: yt("calf raise") },
-    { name: "Dead bug",           kind: "reps", target: { sets: 3, reps: 6 },   scheme: "3 × 6 / side", how: "On back, arms up, knees up 90°. Lower opposite arm + leg slowly. Core stays flat.", video: yt("dead bug core") },
-    { name: "Plank (knees OK)",   kind: "time", target: { sets: 3, seconds: 15 }, scheme: "3 × 15s", how: "Forearms down. Knees OK to start. Straight line from head to whatever's on the floor.", video: yt("plank beginner") },
+  A: { id: "A", title: "Lower (Mon)", duration: "~25 min", exercises: [
+    { name: "Chair-assisted squat", kind: "reps", target: { sets: 4, reps: 15 }, tempo: "3-1-1", scheme: "4 × 15 · 3-1-1", how: "Hold the chair for balance, sit down to the seat, stand. Controlled — 3s down, 1s pause, 1s up.", video: yt("chair assisted squat") },
+    { name: "Bulgarian split squat", kind: "reps", target: { sets: 3, reps: 10 }, tempo: "3-0-1", scheme: "3 × 10 / leg · 3-0-1", how: "Rear foot on a chair, hold the table. Front shin vertical. 3s down. (Regress to box squat if knees hurt.)", video: yt("bulgarian split squat") },
+    { name: "Glute bridge", kind: "reps", target: { sets: 4, reps: 20 }, tempo: "2-2-1", scheme: "4 × 20 · 2-2-1", how: "On the floor, drive hips up, squeeze and PAUSE 2s at the top.", video: yt("glute bridge") },
+    { name: "Calf raise (on stair/book)", kind: "reps", target: { sets: 4, reps: 25 }, tempo: "2-1-2", scheme: "4 × 25 · 2-1-2", how: "Toes on a stair edge or thick book. Full range, slow.", video: yt("calf raise") },
+    { name: "Wall sit", kind: "time", target: { sets: 3, seconds: 40 }, scheme: "3 × max hold", how: "Back flat on wall, thighs parallel to floor. Hold to failure.", video: yt("wall sit") },
   ]},
-  B: { id: "B", title: "Upper — push, beginner", duration: "~20 min", exercises: [
-    { name: "Wall push-up",       kind: "reps", target: { sets: 3, reps: 8 },   scheme: "3 × 8",     how: "Stand arm's length from wall. Hands flat. Lower chest to wall, push back. When this gets easy, move to incline push-ups on a table.", video: yt("wall push up beginner") },
-    { name: "Incline push-up",    kind: "reps", target: { sets: 3, reps: 6 },   scheme: "3 × 6",     how: "Hands on a sturdy table or kitchen counter. Body straight. Lower chest, push up. Easier than knee push-ups for big guys.", video: yt("incline push up") },
-    { name: "Chair-supported pike", kind: "reps", target: { sets: 3, reps: 6 }, scheme: "3 × 6",     how: "Hands on chair seat, hips high, lower head toward hands. Shoulders.", video: yt("pike push up beginner") },
-    { name: "Chair dips (shallow)", kind: "reps", target: { sets: 3, reps: 6 }, scheme: "3 × 6",     how: "Hands on chair edge, knees BENT (feet flat). Lower a few inches, push up. Don't go deep — protect shoulders.", video: yt("chair tricep dip beginner") },
-    { name: "Bottle overhead press", kind: "reps_weight", target: { sets: 3, reps: 10, load: 1 }, scheme: "3 × 10", how: "Two filled water bottles at shoulders. Press up overhead. Start light — 0.5–1 L each.", video: yt("overhead press dumbbell beginner") },
-    { name: "Plank (knees OK)",   kind: "time", target: { sets: 3, seconds: 15 }, scheme: "3 × 15s", how: "Same plank as Workout A.", video: yt("plank beginner") },
+  B: { id: "B", title: "Upper (Tue)", duration: "~25 min", exercises: [
+    { name: "Incline push-up (hands on table)", kind: "reps", target: { sets: 4, reps: 12 }, tempo: "4-0-1", scheme: "4 × 12 · 4-0-1", how: "Hands on a sturdy table, body straight. SLOW 4s negative, push back up.", video: yt("incline push up") },
+    { name: "Table-edge inverted row", kind: "reps", target: { sets: 4, reps: 10 }, tempo: "2-1-2", scheme: "4 × 10 · 2-1-2", how: "Lie under a sturdy table, grab the edge, pull chest to it. Pause 1s at top.", video: yt("table inverted row") },
+    { name: "Pike push-up", kind: "reps", target: { sets: 3, reps: 8 }, tempo: "3-0-1", scheme: "3 × 8 · 3-0-1", how: "Hips high (upside-down V), lower head toward floor. Shoulders.", video: yt("pike push up") },
+    { name: "Chair dips", kind: "reps", target: { sets: 3, reps: 12 }, tempo: "3-0-1", scheme: "3 × 12 · 3-0-1", how: "Hands on chair edge, feet on floor, lower and press. Don't shrug.", video: yt("chair tricep dip") },
+    { name: "Plank", kind: "time", target: { sets: 3, seconds: 30 }, scheme: "3 × max hold", how: "Forearms down, brace hard, straight line. Hold to failure.", video: yt("plank") },
   ]},
-  C: { id: "C", title: "Lower — variation", duration: "~20 min", exercises: [
-    { name: "Step-up to chair",   kind: "reps", target: { sets: 3, reps: 8 },   scheme: "3 × 8 / leg", how: "Sturdy chair (not a fold-up). Step up driving through the heel. Step down. Alternate.", video: yt("step up exercise") },
-    { name: "Wall sit",           kind: "time", target: { sets: 3, seconds: 30 }, scheme: "3 × 30s", how: "5 sec longer than Workout A.", video: yt("wall sit") },
-    { name: "Reverse lunge",      kind: "reps", target: { sets: 3, reps: 6 },   scheme: "3 × 6 / leg", how: "Step backward into a lunge, knee toward (not on) floor, push back. Hold a wall for balance.", video: yt("reverse lunge beginner") },
-    { name: "Bird dog",           kind: "reps", target: { sets: 3, reps: 8 },   scheme: "3 × 8 / side", how: "On hands and knees. Extend opposite arm + leg, hold 1 sec, return. Slow.", video: yt("bird dog exercise") },
-    { name: "Glute bridge",       kind: "reps", target: { sets: 3, reps: 12 },  scheme: "3 × 12",    how: "Same as A, +2 reps.", video: yt("glute bridge") },
-    { name: "March in place",     kind: "time", target: { sets: 3, seconds: 60 }, scheme: "3 × 60s", how: "Lift knees high, pump arms. Easy cardio finisher.", video: yt("march in place cardio") },
+  C: { id: "C", title: "Lower (Thu)", duration: "~25 min", exercises: [
+    { name: "Tempo squat", kind: "reps", target: { sets: 4, reps: 12 }, tempo: "5-0-1", scheme: "4 × 12 · 5-0-1", how: "Bodyweight squat with a brutal 5-second descent. Control the whole way.", video: yt("tempo squat") },
+    { name: "Reverse lunge", kind: "reps", target: { sets: 3, reps: 10 }, tempo: "2-0-1", scheme: "3 × 10 / leg · 2-0-1", how: "Step BACK into a lunge (knee-friendly), push back to standing. Hold a wall if needed.", video: yt("reverse lunge") },
+    { name: "Single-leg glute bridge", kind: "reps", target: { sets: 3, reps: 12 }, tempo: "2-1-1", scheme: "3 × 12 / leg · 2-1-1", how: "One foot planted, other leg straight, drive hips up.", video: yt("single leg glute bridge") },
+    { name: "Wall sit", kind: "time", target: { sets: 3, seconds: 45 }, scheme: "3 × max hold", how: "Same as Day A, push the time.", video: yt("wall sit") },
+    { name: "Standing calf raise", kind: "reps", target: { sets: 4, reps: 30 }, tempo: "1-1-1", scheme: "4 × 30 · 1-1-1", how: "High reps, steady rhythm, full range.", video: yt("standing calf raise") },
   ]},
-  D: { id: "D", title: "Upper — pull + core (no bar)", duration: "~20 min", exercises: [
-    { name: "Towel row (door)",   kind: "reps", target: { sets: 3, reps: 8 },   scheme: "3 × 8",     how: "Towel over the top of a closed, LATCHED door. Hold both ends, lean back, pull chest toward the door.", video: yt("door towel row no bar") },
-    { name: "Bent-over row",      kind: "reps_weight", target: { sets: 3, reps: 10, load: 1 }, scheme: "3 × 10", how: "Two filled bottles or a backpack. Hinge forward (flat back), row to ribs.", video: yt("bent over row dumbbell") },
-    { name: "Bicep curl",         kind: "reps_weight", target: { sets: 3, reps: 10, load: 1 }, scheme: "3 × 10", how: "Bottles or backpack. Slow, controlled.", video: yt("bicep curl dumbbell") },
-    { name: "Reverse snow angel", kind: "reps", target: { sets: 3, reps: 10 },  scheme: "3 × 10",    how: "Lie face-down, sweep arms from sides to overhead, then back. Rear delts/back.", video: yt("reverse snow angel exercise") },
-    { name: "Dead bug",           kind: "reps", target: { sets: 3, reps: 6 },   scheme: "3 × 6 / side", how: "Same as A.", video: yt("dead bug core") },
-    { name: "Plank (knees OK)",   kind: "time", target: { sets: 3, seconds: 20 }, scheme: "3 × 20s", how: "Workout D plank is 5 sec longer.", video: yt("plank beginner") },
+  D: { id: "D", title: "Upper (Fri)", duration: "~25 min", exercises: [
+    { name: "Push-up (floor; knees if needed)", kind: "reps", target: { sets: 4, reps: 8 }, tempo: "3-0-1", scheme: "4 × max · 3-0-1", how: "Full floor push-up, or on knees. 3s negative. Go to failure each set.", video: yt("push up beginner") },
+    { name: "Inverted row", kind: "reps", target: { sets: 4, reps: 8 }, tempo: "2-1-2", scheme: "4 × max · 2-1-2", how: "Under the table, pull chest to edge, to failure.", video: yt("table inverted row") },
+    { name: "Pike push-up", kind: "reps", target: { sets: 3, reps: 10 }, tempo: "3-0-1", scheme: "3 × 10 · 3-0-1", how: "As Day B, +2 reps.", video: yt("pike push up") },
+    { name: "Chair dip", kind: "reps", target: { sets: 3, reps: 15 }, tempo: "3-0-1", scheme: "3 × 15 · 3-0-1", how: "As Day B, +3 reps.", video: yt("chair tricep dip") },
+    { name: "Hollow-body hold", kind: "time", target: { sets: 3, seconds: 20 }, scheme: "3 × max hold", how: "On back, low back pressed down, arms + legs off the floor. Hold.", video: yt("hollow body hold") },
   ]},
 };
 
-/* weekday (0=Sun..6=Sat) -> workout id or "walk"/"rest" */
+/* Unlocked once the user marks resistance bands as arrived (settings.bandsArrived).
+   Fills the back/pull-volume gap. */
+export const BANDS_EXTRA = {
+  upper: [
+    { name: "Band row", kind: "reps_weight", target: { sets: 3, reps: 12, load: 0 }, scheme: "3 × 12", how: "Anchor the band, row to ribs.", video: yt("resistance band row") },
+    { name: "Band pull-apart", kind: "reps", target: { sets: 3, reps: 15 }, scheme: "3 × 15", how: "Arms straight, pull the band apart across your chest. Rear delts/upper back.", video: yt("band pull apart") },
+    { name: "Band overhead press", kind: "reps_weight", target: { sets: 3, reps: 12, load: 0 }, scheme: "3 × 12", how: "Stand on the band, press overhead.", video: yt("band overhead press") },
+  ],
+  lower: [
+    { name: "Band squat", kind: "reps", target: { sets: 3, reps: 15 }, scheme: "3 × 15", how: "Stand on the band, hold at shoulders, squat.", video: yt("band squat") },
+    { name: "Band good-morning", kind: "reps", target: { sets: 3, reps: 12 }, scheme: "3 × 12", how: "Band over neck/shoulders, hinge at hips, flat back.", video: yt("band good morning") },
+  ],
+};
+
+/* weekday (0=Sun..6=Sat) -> workout id or "rest". Steps are mandatory every day. */
 export const WEEK_SCHEDULE = {
   0: "rest",  // Sun
-  1: "A",     // Mon
-  2: "B",     // Tue
-  3: "walk",  // Wed
-  4: "C",     // Thu
-  5: "D",     // Fri
-  6: "walk",  // Sat
+  1: "A",     // Mon — Lower
+  2: "B",     // Tue — Upper
+  3: "rest",  // Wed
+  4: "C",     // Thu — Lower
+  5: "D",     // Fri — Upper
+  6: "rest",  // Sat
 };
 
-export const WARMUP = "5 min: arm circles, leg swings, bodyweight squats, cat-cow, marching in place.";
-export const COOLDOWN = "5 min: stretch quads, hamstrings, chest, shoulders.";
+export const WARMUP = "5 min: arm circles, leg swings, slow bodyweight squats, cat-cow, marching in place. No jumping.";
+export const COOLDOWN = "5 min: stretch quads, hamstrings, chest, shoulders, hip flexors.";
 
 /* Milestones: every 5kg lost from 112.7 down to 80 */
 export const MILESTONES = (() => {
@@ -244,14 +322,64 @@ export const RANKS = [
   { min: 100, title: "Unbreakable",  icon: "♦" },
 ];
 
-/* ---------- Default daily reminders (times the user can edit) ---------- */
-export const DEFAULT_REMINDERS = [
-  { id: "weigh",  label: "Weigh in",        time: "08:00", on: true,  body: "Step on the scale and log it. 5 seconds." },
-  { id: "fast",   label: "Break your fast", time: "12:30", on: true,  body: "Eating window open. Time for Meal 1." },
-  { id: "shake",  label: "Protein shake",   time: "16:00", on: true,  body: "2 scoops whey. Hit your 180g protein." },
-  { id: "train",  label: "Workout",         time: "18:00", on: true,  body: "Time to train. Beat last time." },
-  { id: "dinner", label: "Dinner",          time: "19:30", on: true,  body: "Meal 2. Last food before the fast." },
-  { id: "wind",   label: "Wind down",       time: "21:00", on: false, body: "Stop eating. Water only. Check today's wins." },
+/* ============================================================
+   THE IMMUTABLE MASTER CLOCK — drives the rail home + notifications.
+   `id` is stable, `action` is the single thing to do, `type` styles it,
+   `notify` rows fire a notification, `body` is the push text.
+   ============================================================ */
+export const MASTER_CLOCK = [
+  { id: "wake",   time: "08:00", action: "Wake. 500 ml water. Black coffee.",          type: "wake",    notify: true,  body: "Up. 500 ml water + black coffee." },
+  { id: "walk1",  time: "08:30", action: "Fasted walk #1 — 5,000 steps",               type: "walk",    notify: true,  body: "Fasted walk #1 — knock out 5,000 steps." },
+  { id: "work1",  time: "09:30", action: "Shower. Green tea. Start work (cucumber spears at the desk).", type: "work", notify: true, body: "Start work. Green tea + brined cucumber at the desk." },
+  { id: "train",  time: "12:30", action: "TRAIN — today's workout (fasted is fine)",    type: "train",   notify: true,  body: "Train now. Today's workout — fasted is fine." },
+  { id: "postw",  time: "13:30", action: "Post-workout: water only (window not open yet)", type: "fast", notify: false, body: "" },
+  { id: "meal1",  time: "14:00", action: "WINDOW OPENS — Meal 1 + Omega-3 + D3/K2 + 5 g creatine", type: "meal", notify: true, body: "Window open. Meal 1 + Omega-3 + D3/K2 + creatine." },
+  { id: "work2",  time: "15:00", action: "Back to work",                                type: "work",    notify: false, body: "" },
+  { id: "walk2",  time: "18:00", action: "Walk #2 — 5,000 steps",                       type: "walk",    notify: true,  body: "Walk #2 — last 5,000 steps." },
+  { id: "meal2",  time: "19:30", action: "Meal 2 + 1 scoop ISO protein",               type: "meal",    notify: true,  body: "Meal 2 + ISO protein. Last food of the day." },
+  { id: "warn",   time: "19:45", action: "Window closes in 15 minutes",                type: "warn",    notify: true,  body: "Window closes in 15 min. Finish eating." },
+  { id: "close",  time: "20:00", action: "WINDOW CLOSED — water / tea only now",        type: "warn",    notify: true,  body: "Window closed. Water / tea only from here." },
+  { id: "wind",   time: "20:30", action: "Wind-down. Log your weight data.",            type: "work",    notify: true,  body: "Wind down. Log today's data." },
+  { id: "screens",time: "22:00", action: "Screens off",                                 type: "sleep",   notify: true,  body: "Screens off. Protect tomorrow." },
+  { id: "sleep",  time: "22:30", action: "SLEEP (non-negotiable)",                      type: "sleep",   notify: true,  body: "Sleep now. Non-negotiable." },
+];
+
+/* Reminders are derived from the Master Clock notify rows (editable on/off). */
+export const DEFAULT_REMINDERS = MASTER_CLOCK
+  .filter((r) => r.notify)
+  .map((r) => ({ id: r.id, label: r.action.length > 38 ? r.action.slice(0, 36) + "…" : r.action, time: r.time, on: true, body: r.body }));
+
+/* ============================================================
+   EXPECTED TIMELINE — projected trendline (overlay actual rolling avg).
+   ============================================================ */
+export const TIMELINE = [
+  { month: 0, kg: 112.7, event: "Start" },
+  { month: 1, kg: 107.2, event: "Fast initial drop" },
+  { month: 2, kg: 102.7 },
+  { month: 3, kg: 98.7 },
+  { month: 4, kg: 94.7, event: "Recalc → ~1,550 kcal" },
+  { month: 5, kg: 91.2 },
+  { month: 6, kg: 87.7 },
+  { month: 7, kg: 84.7, event: "Recalc → ~1,450 kcal" },
+  { month: 8, kg: 81.7 },
+  { month: 9, kg: 80.0, event: "GOAL" },
+];
+export const TIMELINE_NOTE = "Aggressive but realistic: ~1.1 kg/week early, slowing as you lighten. Full window ≈ 8–9 months.";
+
+/* ---------- Safety guardrails (fire from the symptom log) ---------- */
+export const GUARDRAILS = {
+  knee: "Knee pain logged → regress Bulgarian split squats / lunges to box squats until you're down 10 kg. Never run or jump.",
+  ibs: "Morning cramping logged → move coffee from 08:00 to 14:00 (with food); make 08:00 green tea instead.",
+  bloating: "Protein-powder bloating logged → split the scoop across the day, or swap it for a 3rd egg.",
+  energy: "Energy crash / binge logged → the fix is bumping Meal 1 rice 70 g → 90 g, NOT guilt. Sustainable beats optimal.",
+  calcium: "No dairy → eat canned sardines-with-bones 2×/week (cheap, low-FODMAP, also omega-3).",
+};
+
+export const SYMPTOM_TYPES = [
+  { id: "knee", label: "Knee pain", icon: "🦵" },
+  { id: "ibs", label: "IBS / cramping", icon: "🌀" },
+  { id: "bloating", label: "Bloating", icon: "🎈" },
+  { id: "energy", label: "Low energy / binge", icon: "🔋" },
 ];
 
 /* Big, vibrant hero quotes — shown front and center every time the app
@@ -262,12 +390,12 @@ export const DEFAULT_REMINDERS = [
 export const REFEED = {
   intro: "Today is your planned refeed. The deficit pauses for ONE day so the next 6 days work better. Eat the same clean foods — just MORE carbs.",
   rules: [
-    "Hit your normal 180 g protein (don't drop it).",
+    "Hit your normal protein (don't drop it).",
     "Add ~50% more rice / potato / oats — fill the tank.",
     "Keep fats moderate (no fried, no junk).",
     "No alcohol, no sweets, no off-plan eating — just bigger portions of your usual meals.",
     "Calories rise to roughly maintenance (~2,800–3,000 kcal). That's the point. Do NOT feel guilty.",
-    "Tomorrow you go straight back to 1,800 kcal. The fast resumes. No 'cheat week.'",
+    "Tomorrow you go straight back to your normal target. The fast resumes. No 'cheat week.'",
   ],
   example:
     "Example refeed day: Air-fryer chicken (250g) + 180g dry rice + 300g potato + olive oil " +
@@ -282,11 +410,11 @@ export const DIET_BREAK = {
   intro: "Every 8–12 weeks of cutting, you take a FULL WEEK at maintenance (~2,800–3,000 kcal). Not a cheat week. Same clean foods — just bigger portions. This protects muscle, hormones, and your mind.",
   rules: [
     "Calories: maintenance (~2,800–3,000 kcal). Eat to full satisfaction.",
-    "Protein stays at 180 g/day.",
+    "Protein stays at your normal target.",
     "Add carbs liberally — rice, potato, oats, fruit. That's the point.",
     "Same clean foods. No fried, no junk, no alcohol.",
     "Train as normal. Walks still happen.",
-    "After 7 days, you go straight back to 1,800 kcal. Expect the scale to drop fast in week 1 of the new cut block (water).",
+    "After 7 days, you go straight back to your cut target. Expect the scale to drop fast in week 1 of the new block (water).",
   ],
   cadence: 56, // suggested days between diet breaks (8 weeks)
 };
