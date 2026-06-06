@@ -7,6 +7,7 @@ import { currentStreak, totalLost, lockedInDays, rankFor, weeklyRate, etaToGoal 
 import { MILESTONES, DAILY_LINES, RANKS } from "../data.js";
 import { buildMonth } from "../calendar.js";
 import { openDayDetail } from "../day-detail.js";
+import { heroQuote } from "../quotes.js";
 
 export function renderMotivation(root) {
   const s = getSettings();
@@ -17,6 +18,9 @@ export function renderMotivation(root) {
   const rank = rankFor(RANKS, days);
 
   root.appendChild(pageHead("Drive", "Why you don't quit this time"));
+
+  // big vibrant motivation quote (relocated off the rail home)
+  root.appendChild(heroQuote());
 
   // streak hero
   root.appendChild(card(null, [

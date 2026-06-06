@@ -48,14 +48,16 @@ await typePin("1234");           // confirm
 await page.waitForSelector("#app:not([hidden])", { timeout: 5000 });
 console.log("  ok - PIN create + enter app");
 
-// --- Today renders (hero quote + sticky topbar) ---
-await page.waitForSelector(".hero-quote .hq-text");
+// --- Rail home renders (right-now action + topbar) ---
+await page.waitForSelector(".rail-now .rail-action");
 await page.waitForSelector(".topbar .tb-streak");
-console.log("  ok - Today renders (hero + topbar)");
+console.log("  ok - rail home renders (right-now + topbar)");
 
-// --- toggle a meal check ---
-await page.click('.check:has-text("Main meal")');
-console.log("  ok - check toggled");
+// --- open full-day checklist + toggle a supplement check ---
+await page.click('.collapse-h:has-text("Full day")');
+await page.waitForTimeout(150);
+await page.click('.check:has-text("Omega-3")');
+console.log("  ok - full-day check toggled");
 
 // --- visit each screen via hash ---
 for (const route of ["weight", "meals", "workouts", "media", "motivation", "calendar", "settings", "today"]) {

@@ -133,6 +133,17 @@ export function renderSettings(root, { refresh }) {
   lockCard.appendChild(el("p.note", { text: "App re-locks behind your PIN when idle. Touch/scroll resets the timer.", style: "margin-top:8px" }));
   root.appendChild(lockCard);
 
+  // ---- resistance bands unlock ----
+  const bandsCard = card('🟢 <span class="tag">Resistance bands</span>', []);
+  bandsCard.appendChild(el("p", { html: s.bandsArrived
+    ? "Bands are <b>unlocked</b> — band exercises now appear in your Upper & Lower workouts."
+    : "When your resistance bands arrive, unlock the extra pull/press band exercises." }));
+  bandsCard.appendChild(el("button.btn " + (s.bandsArrived ? "ghost" : "big"), {
+    text: s.bandsArrived ? "Bands arrived ✓ (tap to disable)" : "📦 My bands arrived — unlock exercises",
+    onclick: () => { setSettings({ bandsArrived: !s.bandsArrived }); toast(s.bandsArrived ? "Bands disabled" : "Band exercises unlocked 💪"); refresh(); },
+  }));
+  root.appendChild(bandsCard);
+
   // ---- custom exercises ----
   const cxCard = card('🧩 <span class="tag">Custom exercises</span>', []);
   const customs = (s.customExercises || []).slice();

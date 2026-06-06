@@ -1,7 +1,7 @@
 /* ============================================================
    router.js — hash routing + nav (bottom bar on mobile, side on desktop).
    ============================================================ */
-import { renderToday } from "./screens/today.js";
+import { renderNow } from "./screens/now.js";
 import { renderWeight } from "./screens/weight.js";
 import { renderMeals } from "./screens/meals.js";
 import { renderWorkouts } from "./screens/workouts.js";
@@ -25,7 +25,7 @@ const ICONS = {
 };
 
 const ROUTES = {
-  today: { label: "Today", icon: "today", render: renderToday },
+  today: { label: "Now", icon: "today", render: renderNow },
   calendar: { label: "Calendar", icon: "calendar", render: renderCalendar },
   weight: { label: "Weight", icon: "weight", render: renderWeight },
   meals: { label: "Meals", icon: "meals", render: renderMeals },

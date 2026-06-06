@@ -7,7 +7,7 @@
    Custom exercises (settings.customExercises) appear under their workout.
    ============================================================ */
 import { el, card, pageHead } from "../ui.js";
-import { WORKOUTS, OVERLOAD_RULE, TRAINING_NOTE, WARMUP, COOLDOWN, WEEK_SCHEDULE } from "../data.js";
+import { WORKOUTS, OVERLOAD_RULE, TRAINING_NOTE, WARMUP, COOLDOWN, WEEK_SCHEDULE, BANDS_EXTRA } from "../data.js";
 import { logWorkout, getLastWorkout, setDayLog, todayKey, getSettings, getState } from "../store.js";
 import { toast } from "../router.js";
 import { beep, vibrate, chime } from "../feedback.js";
@@ -52,7 +52,12 @@ export function renderWorkouts(root) {
 function exercisesFor(id) {
   const base = (WORKOUTS[id] && WORKOUTS[id].exercises) || [];
   const custom = (getSettings().customExercises || []).filter((c) => c.workoutId === id);
-  return [...base, ...custom];
+  // Resistance-band unlock: Upper = B/D, Lower = A/C.
+  let bands = [];
+  if (getSettings().bandsArrived) {
+    bands = (id === "B" || id === "D") ? BANDS_EXTRA.upper : (id === "A" || id === "C") ? BANDS_EXTRA.lower : [];
+  }
+  return [...base, ...bands, ...custom];
 }
 
 function renderList(root) {

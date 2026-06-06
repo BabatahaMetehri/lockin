@@ -426,3 +426,32 @@ small.note{ color:var(--muted-2); font-size:.78rem; }
 .lg{ display:flex; flex-wrap:wrap; gap:8px 14px; font-size:.74rem; color:var(--muted); }
 .lg-item{ display:inline-flex; align-items:center; gap:6px; }
 .lg-sw{ display:inline-flex; align-items:center; }
+
+/* ============================================================
+   RAIL HOME — the single "right now" action (F11)
+   ============================================================ */
+.rail-now{ border-width:2px; position:relative; overflow:hidden; }
+.rail-now::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:5px; background:var(--lime); }
+.rail-now .rail-action{ font-family:var(--ff-display); font-size:clamp(1.8rem,6vw,2.6rem); line-height:1.02; letter-spacing:.01em; margin:4px 0 2px; }
+.rail-now .rail-next{ margin:14px 0 0; font-size:.84rem; padding-top:10px; border-top:1px solid var(--line); }
+/* type accents */
+.rail-now.meal{ border-color:rgba(198,241,53,.55); }
+.rail-now.meal::before{ background:var(--lime); }
+.rail-now.train{ border-color:rgba(198,241,53,.55); }
+.rail-now.train::before{ background:var(--lime); }
+.rail-now.walk::before{ background:#54c8ff; }
+.rail-now.work::before{ background:var(--muted); }
+.rail-now.warn{ border-color:rgba(255,91,53,.6); }
+.rail-now.warn::before{ background:var(--orange); }
+.rail-now.warn .rail-action{ color:var(--orange); }
+.rail-now.wake::before{ background:#ffd23f; }
+.rail-now.sleep{ opacity:.92; }
+.rail-now.sleep::before{ background:#7c83ff; }
+
+/* meal ingredient table */
+.meal-tbl{ width:100%; border-collapse:collapse; margin-top:8px; font-size:.85rem; }
+.meal-tbl th{ text-align:left; font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); padding:4px 6px; border-bottom:1px solid var(--line); }
+.meal-tbl th:nth-child(4), .meal-tbl th:nth-child(5), .meal-tbl td:nth-child(4), .meal-tbl td:nth-child(5){ text-align:right; }
+.meal-tbl td{ padding:6px; border-bottom:1px solid var(--line); }
+.meal-tbl td.muted{ color:var(--muted); font-size:.78rem; }
+.meal-tbl tr.meal-total td{ font-weight:800; color:var(--lime); border-bottom:0; border-top:2px solid var(--line); }
