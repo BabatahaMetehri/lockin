@@ -123,6 +123,13 @@ function buildCostTool() {
     grocCard.appendChild(row);
   });
   recalc();
-  grocCard.appendChild(el("p.note", { text: `Prices in ${CURRENCY}. Edit once; total updates live.`, style: "margin-top:12px" }));
+  grocCard.appendChild(el("button.btn ghost sm", { text: "📋 Copy shopping list", style: "margin-top:12px", onclick: () => {
+    const lines = GROCERY.filter((g) => (userQtys[g.id] != null ? userQtys[g.id] : g.qty) > 0)
+      .map((g) => `□ ${g.item} — ${userQtys[g.id] != null ? userQtys[g.id] : g.qty} ${g.unit}`);
+    const text = "LOCKIN weekly shopping list\n" + lines.join("\n");
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => alert("Shopping list copied ✓")).catch(() => alert(text));
+    else alert(text);
+  }}));
+  grocCard.appendChild(el("p.note", { text: `Prices in ${CURRENCY}. Edit once; total updates live.`, style: "margin-top:10px" }));
   return grocCard;
 }

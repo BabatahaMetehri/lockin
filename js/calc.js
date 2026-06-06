@@ -62,6 +62,24 @@ export function currentStreak(dayLogs, today = new Date()) {
   return streak;
 }
 
+/** Clean-fast streak: consecutive days (ending today/yesterday) marked cleanFast. */
+export function cleanFastStreak(dayLogs, today = new Date()) {
+  if (!dayLogs) return 0;
+  let streak = 0;
+  const d = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  // allow today to be unset (not logged yet) without breaking the streak
+  let first = true;
+  for (;;) {
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const log = dayLogs[key];
+    if (log && log.cleanFast === true) { streak++; d.setDate(d.getDate() - 1); }
+    else if (first && (!log || log.cleanFast === undefined)) { d.setDate(d.getDate() - 1); } // skip un-answered today
+    else break;
+    first = false;
+  }
+  return streak;
+}
+
 /** Mifflin-St Jeor BMR for a male. */
 export function bmrMale(kg, cm, age) {
   return 10 * kg + 6.25 * cm - 5 * age + 5;

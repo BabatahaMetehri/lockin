@@ -3,7 +3,7 @@
    ============================================================ */
 import { el, card, pageHead, statBox } from "../ui.js";
 import { getState, getSettings, setSettings, latestWeight, getDayLog } from "../store.js";
-import { currentStreak, totalLost, lockedInDays, rankFor, weeklyRate, etaToGoal } from "../calc.js";
+import { currentStreak, totalLost, lockedInDays, rankFor, weeklyRate, etaToGoal, cleanFastStreak } from "../calc.js";
 import { MILESTONES, DAILY_LINES, RANKS } from "../data.js";
 import { buildMonth } from "../calendar.js";
 import { openDayDetail } from "../day-detail.js";
@@ -21,6 +21,14 @@ export function renderMotivation(root) {
 
   // big vibrant motivation quote (relocated off the rail home)
   root.appendChild(heroQuote());
+
+  // streaks at a glance
+  const cfs = cleanFastStreak(state.dayLogs, new Date());
+  root.appendChild(el("div.stat-row", { style: "margin-bottom:14px" }, [
+    statBox("🔥 " + streak, "active streak", "orange"),
+    statBox("🧊 " + cfs, "clean fasts", "lime"),
+    statBox((lost >= 0 ? "−" : "+") + Math.abs(lost).toFixed(1), "kg lost", lost > 0 ? "lime" : ""),
+  ]));
 
   // streak hero
   root.appendChild(card(null, [

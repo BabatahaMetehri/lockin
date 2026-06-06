@@ -6,7 +6,7 @@
 import { el, card, checkRow, collapse } from "../ui.js";
 import {
   getSettings, getState, getDayLog, toggleCheck, setDayLog, setSettings,
-  todayKey, latestWeight, logWeight,
+  todayKey, latestWeight, logWeight, addSymptom, recentSymptomTypes, setCleanFast,
 } from "../store.js";
 import {
   fastingStatus, fmtCountdown, masterClockNow, calorieTargetFor,
@@ -17,7 +17,8 @@ import { tap, chime } from "../feedback.js";
 import { buildLogger } from "../food-logger.js";
 import {
   MASTER_CLOCK, FIXED_MEALS, SUPPLEMENTS, WORKOUTS, WEEK_SCHEDULE,
-  EATING_WINDOW, TARGETS, WARMUP, STEPS_PLAN, CALORIE, SNACK_HACKS, MUNCH_RULE,
+  EATING_WINDOW, TARGETS, WARMUP, STEPS_PLAN, CALORIE, MUNCH_RULE,
+  GUARDRAILS, SYMPTOM_TYPES,
 } from "../data.js";
 
 const CLOCK_ICON = { wake: "☀️", walk: "🚶", work: "💻", train: "🏋️", meal: "🍽️", fast: "💧", warn: "⏰", sleep: "🌙" };
@@ -62,6 +63,15 @@ export function renderNow(root, { go, refresh }) {
     rc.appendChild(el("p", { html: `You've crossed a 15 kg milestone. To keep losing, your target drops to <b>${ct.target} kcal/day</b> (was ${s.kcal}).` }));
     rc.appendChild(el("button.btn big", { text: `Accept ${ct.target} kcal`, onclick: () => { setSettings({ kcal: ct.target, calorieTier: ct.tier }); refresh(); } }));
     root.appendChild(rc);
+  }
+
+  // ---------- safety guardrails (fire from recent symptoms) ----------
+  const fired = recentSymptomTypes(3, d).filter((t) => GUARDRAILS[t]);
+  if (fired.length) {
+    const g = el("section.card", { style: "border-color:rgba(255,91,53,.55);background:linear-gradient(180deg,rgba(255,91,53,.1),var(--bg-2))" });
+    g.appendChild(el("h2", { html: '🛡️ <span class="tag" style="color:var(--orange)">Coach adjustment</span>' }));
+    fired.forEach((t) => g.appendChild(el("p", { text: GUARDRAILS[t], style: "margin:6px 0;font-size:.9rem" })));
+    root.appendChild(g);
   }
 
   // ---------- THE RIGHT-NOW RAIL ----------
@@ -202,6 +212,29 @@ export function renderNow(root, { go, refresh }) {
       weighCard.appendChild(el("div", { style: "display:flex;gap:8px" }, [inp, el("button.btn", { text: "Log", onclick: () => { const v = parseFloat(inp.value); if (!v) return; logWeight(v, date); checkWin(); refresh(); } })]));
     }
     wrap.appendChild(weighCard);
+
+    // clean-fast honesty check (F7)
+    const cfCard = card('🧊 <span class="tag">Clean fast?</span>', []);
+    cfCard.appendChild(el("p.muted", { text: "Did you stay water/coffee/tea only outside the window today?", style: "font-size:.85rem;margin-top:0" }));
+    const cf = log.cleanFast;
+    const cfRow = el("div", { style: "display:flex;gap:8px" });
+    const yes = el("button.btn " + (cf === true ? "" : "ghost"), { text: "✅ Clean", onclick: () => { setCleanFast(date, true); checkWin(); refresh(); } });
+    const no = el("button.btn " + (cf === false ? "warn" : "ghost"), { text: "✗ Slipped", onclick: () => { setCleanFast(date, false); refresh(); } });
+    cfRow.appendChild(yes); cfRow.appendChild(no);
+    cfCard.appendChild(cfRow);
+    wrap.appendChild(cfCard);
+
+    // symptom log (F8) — one tap, feeds the guardrails
+    const symCard = card('🩺 <span class="tag">Log a symptom</span>', []);
+    symCard.appendChild(el("p.muted", { text: "Tap if something's off — the coach adjusts the plan automatically.", style: "font-size:.85rem;margin-top:0" }));
+    const symRow = el("div", { style: "display:flex;gap:8px;flex-wrap:wrap" });
+    SYMPTOM_TYPES.forEach((t) => symRow.appendChild(el("button.btn ghost sm", {
+      html: `${t.icon} ${t.label}`, onclick: () => { addSymptom(t.id, date); tap(); refresh(); },
+    })));
+    symCard.appendChild(symRow);
+    const todays = (getState().symptomLog || []).filter((x) => x.date === date);
+    if (todays.length) symCard.appendChild(el("p.note", { text: "Logged today: " + todays.map((x) => x.type).join(", "), style: "margin-top:8px" }));
+    wrap.appendChild(symCard);
 
     // off-plan logger
     wrap.appendChild(buildLogger(date));

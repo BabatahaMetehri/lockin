@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { bmi, bmiCategory, totalLost, progressPct, weeklyRate, currentStreak, ageFrom,
   lockedInDays, rankFor, fastingStatus, fmtCountdown, etaToGoal, daysSince, dietBreakStatus,
-  calorieTargetFor, masterClockNow, latestRollingAvg, rollingAvgSeries } from "../js/calc.js";
+  calorieTargetFor, masterClockNow, latestRollingAvg, rollingAvgSeries, cleanFastStreak } from "../js/calc.js";
 import { RANKS, MASTER_CLOCK } from "../js/data.js";
 
 let pass = 0;
@@ -147,6 +147,19 @@ t("rolling 7-day average smooths and reports latest", () => {
   assert.equal(series[0].kg, 110);
   assert.ok(Math.abs(latestRollingAvg(w, 7) - 110.3) < 0.05); // (110+112+109)/3
   assert.equal(latestRollingAvg([], 7), null);
+});
+
+t("cleanFastStreak counts consecutive clean days, tolerates unanswered today", () => {
+  const today = new Date(2026, 5, 3);
+  // today unanswered, yesterday + day before clean → streak 2
+  const logs = {
+    "2026-06-02": { cleanFast: true },
+    "2026-06-01": { cleanFast: true },
+    "2026-05-31": { cleanFast: false },
+  };
+  assert.equal(cleanFastStreak(logs, today), 2);
+  // a slip today breaks it
+  assert.equal(cleanFastStreak({ "2026-06-03": { cleanFast: false } }, today), 0);
 });
 
 console.log(`PASSED ${pass} calc tests\n`);
