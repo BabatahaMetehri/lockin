@@ -52,7 +52,11 @@
       "Bash(rm -f js/screens/today.js)",
       "Bash(grep -rn \"today.js\\\\|renderToday\" js/ test/)",
       "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'LOCKIN spec v2 — Pass 2: rail home, fixed-meal screen, tempo workouts, bands *)",
-      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'LOCKIN spec v2 — Pass 3: guardrails, symptom log, clean-fast, projection, shopping list *)"
+      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'LOCKIN spec v2 — Pass 3: guardrails, symptom log, clean-fast, projection, shopping list *)",
+      "Bash(node --check js/data.js)",
+      "Bash(node --check js/screens/meals.js)",
+      "Bash(node -e \"import\\('./js/data.js'\\).then\\(m=>{let t=0;m.GROCERY.forEach\\(g=>t+=\\(g.qty*g.price\\)||0\\);console.log\\('items:',m.GROCERY.length,'| weekly total:',Math.round\\(t\\),m.CURRENCY\\)}\\)\")",
+      "Bash(git -c user.name=Taha -c user.email=metehritaha@gmail.com commit -q -m 'Rebuild shopping list from the two fixed meals \\(x7\\) + snacks *)"
     ]
   }
 }

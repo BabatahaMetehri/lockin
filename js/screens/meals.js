@@ -6,7 +6,7 @@ import { el, card, pageHead, collapse } from "../ui.js";
 import { toggleGrocery, getState, getSettings, setSettings } from "../store.js";
 import {
   TARGETS, EATING_WINDOW, FIXED_MEALS, MEALS_DAILY_TOTAL, SNACK_HACKS, MUNCH_RULE,
-  GROCERY, SEASONING_RULES, EXCLUDED_FOODS, MEAL_PREP, CURRENCY,
+  GROCERY, GROCERY_NOTE, SEASONING_RULES, EXCLUDED_FOODS, MEAL_PREP, CURRENCY,
 } from "../data.js";
 
 export function renderMeals(root) {
@@ -85,7 +85,8 @@ function buildCostTool() {
   const userQtys = getSettings().qtys || {};
   const got = getState().grocery;
   const totalEl = el("span.cost-bar", { text: "0 " + CURRENCY });
-  const grocCard = card('🛒 <span class="tag">Weekly cost</span>', []);
+  const grocCard = card('🛒 <span class="tag">Weekly shopping & cost</span>', []);
+  grocCard.appendChild(el("p.note", { text: GROCERY_NOTE, style: "margin-top:0" }));
   grocCard.appendChild(el("div.row-between", {}, [totalEl, el("small.note", { text: "tap row to cross off · prices save" })]));
   grocCard.appendChild(el("div.gr-row", { style: "border-bottom:2px solid var(--line);font-weight:700;color:var(--muted);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase" }, [
     el("span", { text: "Item" }), el("span", { text: "Qty" }), el("span", { text: "@" }), el("span", { style: "text-align:right", text: "Total" }),

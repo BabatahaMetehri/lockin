@@ -172,23 +172,28 @@ export const BUDGET_NOTE =
   "Chicken is the priciest thing here, so it's only ~2 days a week. Your whey covers a big slice of protein and you already own it. " +
   "Buy whatever veg is cheapest and in season (carrots and potatoes are the cheapest). Skip anything on this list you can't afford this week — it still works.";
 
-/* Each item has a qty and a default price PER UNIT (DZD — Algeria).
-   Prices are EDITABLE in the app and saved in settings.prices.
-   The Meals screen multiplies qty × price → weekly cost total. */
+/* Weekly shopping list — AUTO-DERIVED from the two fixed meals × 7 days
+   + the desk snack hacks + the calcium guardrail (sardines 2×/week).
+   qty = what to buy for the week; price = PER UNIT (DZD), editable & saved.
+   The Meals screen multiplies qty × price → weekly cost total.
+   Per-day math: chicken 200g, rice 70g, potato 200g, tuna 1 can, oats 60g,
+   2 eggs, cucumber ~270g, carrot ~120g, olive oil 8g. */
 export const CURRENCY = "DZD";
+export const GROCERY_NOTE = "Auto-built from your 2 daily meals × 7 days + desk snacks. Oil/vinegar/spices last weeks — zero them on weeks you don't rebuy.";
 export const GROCERY = [
-  { id: "rice",     item: "White rice",         qty: 1,   unit: "kg",   price: 150,  tag: "base" },
-  { id: "chicken",  item: "Chicken breast",     qty: 1,   unit: "kg",   price: 700,  tag: "priciest" },
-  { id: "potato",   item: "Potatoes",           qty: 2,   unit: "kg",   price: 70,   tag: "cheap" },
-  { id: "tuna",     item: "Tuna (in water)",    qty: 5,   unit: "cans", price: 130 },
-  { id: "sardines", item: "Sardines",           qty: 3,   unit: "cans", price: 180 },
-  { id: "eggs",     item: "Eggs",               qty: 14,  unit: "eggs", price: 25,   tag: "cheap protein" },
-  { id: "cheese",   item: "Hard cheese",        qty: 0.2, unit: "kg",   price: 1500 },
-  { id: "oil",      item: "Olive oil",          qty: 0.25,unit: "L",    price: 800 },
-  { id: "lemon",    item: "Lemons",             qty: 5,   unit: "units",price: 20 },
-  { id: "carrot",   item: "Carrots",            qty: 1,   unit: "kg",   price: 80 },
-  { id: "banana",   item: "Bananas",            qty: 7,   unit: "units",price: 50 },
-  { id: "spice",    item: "Cumin / salt / pepper", qty: 0, unit: "—",   price: 0, tag: "once" },
+  { id: "chicken",  item: "Chicken breast",        qty: 1.5, unit: "kg",   price: 700, tag: "Meal 1 · priciest" },
+  { id: "tuna",     item: "Tuna (in water)",       qty: 7,   unit: "cans", price: 130, tag: "Meal 2 · 1/day" },
+  { id: "eggs",     item: "Eggs",                  qty: 14,  unit: "eggs", price: 25,  tag: "Meal 2 · 2/day" },
+  { id: "sardines", item: "Sardines (with bones)", qty: 2,   unit: "cans", price: 180, tag: "calcium 2×/wk" },
+  { id: "rice",     item: "White rice",            qty: 1,   unit: "kg",   price: 150, tag: "Meal 1" },
+  { id: "oats",     item: "Oats",                  qty: 0.5, unit: "kg",   price: 250, tag: "Meal 2" },
+  { id: "potato",   item: "Potatoes",              qty: 1.5, unit: "kg",   price: 70,  tag: "Meal 1 · cheap" },
+  { id: "cucumber", item: "Cucumbers",             qty: 8,   unit: "units",price: 30,  tag: "meals + desk snack" },
+  { id: "carrot",   item: "Carrots",               qty: 1,   unit: "kg",   price: 80,  tag: "meals + snack chips" },
+  { id: "radish",   item: "Radishes",              qty: 0.5, unit: "kg",   price: 100, tag: "snack chips" },
+  { id: "oil",      item: "Olive oil",             qty: 1,   unit: "bottle", price: 800, tag: "lasts weeks" },
+  { id: "vinegar",  item: "White vinegar",         qty: 1,   unit: "bottle", price: 120, tag: "snack brine · lasts" },
+  { id: "spice",    item: "Cumin / paprika / salt / pepper", qty: 1, unit: "set", price: 0, tag: "pantry · buy when low" },
 ];
 
 export const SUPPLEMENTS = [
